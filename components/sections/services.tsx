@@ -52,7 +52,7 @@ export function Services() {
               key={service.title}
               className="hover:*:text-primary-foreground flex items-start gap-8 border-b p-8"
             >
-              <service.icon className="size-6" />
+              <service.icon className="text-primary size-6" />
 
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold">{service.title}</h2>
