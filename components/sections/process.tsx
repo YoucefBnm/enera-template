@@ -50,7 +50,7 @@ export function Process() {
         <CardsStackContainer className="space-y-16 md:flex-1">
           {PROCESS_PHASES.map((phase, index) => (
             <CardSticky
-              className="odd:bg-primary/90 bg-accent/90 text-accent-foreground odd:text-primary-foreground flex aspect-2/1 items-center gap-8 rounded p-8 backdrop-blur md:aspect-4/3"
+              className="bg-primary/90 odd:bg-accent/90 odd:text-accent-foreground text-primary-foreground flex aspect-2/1 items-center gap-8 rounded p-8 backdrop-blur md:aspect-4/3"
               key={phase.label}
               index={index + 2}
             >
