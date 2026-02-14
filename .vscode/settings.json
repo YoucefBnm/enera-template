@@ -1,0 +1,36 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "tailwindCSS.classFunctions": [
+    "cva",
+    "cn"
+  ],
+  "vitest.debugExclude": [
+    "<node_internals>/**",
+    "**/node_modules/**",
+    "**/fixtures/**"
+  ],
+  "files.exclude": {
+    "deprecated": true
+  },
+  "search.exclude": {
+    "apps/v4/registry/radix-*": true,
+    "apps/v4/public/r/*": true,
+    "packages/shadcn/test/fixtures/*": true
+  }
+}
