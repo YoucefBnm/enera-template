@@ -2,6 +2,8 @@
 
 Systaliko UI enera website template.
 
+![hero](/public/og-image.png)
+
 ## Stack
 
 - **Next.js 16** (App Router)
@@ -15,8 +17,6 @@ Systaliko UI enera website template.
 - **Embla Carousel**
 - **Base UI** / **shadcn**
 - **Vercel Analytics**
-
-![hero](/public/og-image.png)
 
 ## Run
 
