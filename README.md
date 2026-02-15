@@ -16,9 +16,7 @@ Systaliko UI enera website template.
 - **Base UI** / **shadcn**
 - **Vercel Analytics**
 
-## OG Image
-
-Social preview image: `public/og-image.png`. Use it in your metadata (e.g. Next.js `openGraph.images`) for link previews.
+![hero](/public/og-image.png)
 
 ## Run
 
