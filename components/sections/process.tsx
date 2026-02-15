@@ -32,16 +32,16 @@ export function Process() {
   return (
     <section ref={ref} className="px-8 py-16">
       <div className="flex flex-wrap gap-6">
-        <div className="sticky top-12 h-fit flex-1 space-y-8">
+        <div className="top-12 h-fit flex-1 space-y-8 md:sticky">
           <SectionIntro
             title="our process"
             subtitle="Simple and efficient, and we're always looking for
             ways to improve."
           />
           <div className="px-12">
-            <div className="bg-primary-foreground w-full overflow-hidden">
+            <div className="bg-primary-foreground dark:bg-muted w-full overflow-hidden">
               <motion.div
-                className="bg-primary h-0.5 w-full origin-left"
+                className="bg-primary dark:bg-muted-foreground h-0.5 w-full origin-left"
                 style={{ scaleX }}
               />
             </div>

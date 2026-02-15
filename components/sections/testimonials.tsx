@@ -67,7 +67,7 @@ const TESTIMONIALS = [
 
 export function Testimonials() {
   return (
-    <section className="bg-accent text-accent-foreground py-20">
+    <section className="py-20">
       <SectionIntro
         title="Testimonials"
         subtitle="What our clients say about us"

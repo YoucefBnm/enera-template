@@ -1,10 +1,11 @@
 'use client'
-import { SectionIntro } from '../section-intro'
 import {
   CustomCursor,
   CustomCursorProvider,
   useCustomCursor,
 } from '../systaliko-ui/custom-cursor'
+import { TextStaggerInview } from '../systaliko-ui/text-stagger-inview'
+import { Button } from '../ui/button'
 import { MapPin, WorldMap, WorldMapGLow, WorldMapSvg } from '../world-map'
 
 function LocationInfo({
@@ -53,15 +54,20 @@ function LocationsContent() {
     setCursorChildren(null)
   }
   return (
-    <section className="bg-foreground text-background grid grid-cols-1 grid-rows-1 items-center *:col-start-1 *:row-start-1">
-      <SectionIntro
-        title="our locations"
-        subtitle="From the USA to Asia, we have a global network of data centers, providing reliable energy solutions for our clients."
-        className="relative z-10 size-fit place-content-center"
-      />
+    <section className="grid grid-cols-1 grid-rows-1 items-center *:col-start-1 *:row-start-1">
+      <div className="relative z-2 space-y-4 p-8">
+        <TextStaggerInview
+          animation="bottom"
+          className="block text-3xl font-semibold tracking-tight text-balance *:overflow-hidden *:pb-px md:text-4xl"
+        >
+          From the USA to Asia, we have a global network of data centers,
+          providing reliable energy solutions for our clients.
+        </TextStaggerInview>
+        <Button>Book a demo</Button>
+      </div>
       <WorldMap className="relative" ref={containerRef}>
         <CustomCursor />
-        <WorldMapGLow className="bg-primary/20" />
+        <WorldMapGLow className="bg-primary/10" />
 
         <WorldMapSvg>
           <g onMouseEnter={handleUsCursor} onMouseLeave={handleClearCursor}>

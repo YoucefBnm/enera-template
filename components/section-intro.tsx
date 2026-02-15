@@ -14,7 +14,7 @@ export function SectionIntro({
   ...props
 }: SectionIntroProps) {
   return (
-    <div className={cn('mb-8 space-y-4 px-12', className)} {...props}>
+    <div className={cn('mb-8 space-y-4 px-6 md:px-12', className)} {...props}>
       <div className="inline-flex items-center gap-2">
         <Pulse />
         <h4 className="text-muted-foreground text-xs tracking-wide uppercase">
@@ -23,7 +23,7 @@ export function SectionIntro({
       </div>
       <TextStaggerInview
         animation="bottom"
-        className="block text-4xl font-semibold tracking-tight text-balance *:overflow-hidden *:pb-px"
+        className="block text-3xl font-semibold tracking-tight text-balance *:overflow-hidden *:pb-px md:text-4xl"
       >
         {subtitle}
       </TextStaggerInview>

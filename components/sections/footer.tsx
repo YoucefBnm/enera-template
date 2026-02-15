@@ -5,7 +5,7 @@ import { Logo } from '../logo'
 
 export function Footer() {
   return (
-    <footer className="border-t/50 bg-accent text-accent-foreground border-t px-8">
+    <footer className="border-t px-8">
       <div className="container mx-auto flex flex-wrap md:flex-nowrap">
         <div className="md:border- border-r/50 flex flex-col items-start space-y-4 py-12 md:border-r">
           <p className="text-balance">
@@ -22,7 +22,7 @@ export function Footer() {
         <div className="space-y-4 px-8 py-12">
           <h3 className="text-2xl font-medium">Sitemap</h3>
 
-          <ul className="flex flex-col">
+          <ul className="flex flex-col items-start">
             <BgMask
               as={'li'}
               className="hover:*:text-primary-foreground p-1 text-lg font-medium *:transition-colors *:duration-300 *:ease-in-out"
@@ -55,7 +55,7 @@ export function Footer() {
             </BgMask>
           </ul>
 
-          <ul className="text-primary flex items-start">
+          <ul className="text-primary dark:text-muted-foreground flex items-start">
             <BgMask
               as={'li'}
               className="hover:*:text-primary-foreground p-1 font-medium *:transition-colors *:duration-300 *:ease-in-out"

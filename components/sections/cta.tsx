@@ -1,21 +1,13 @@
-import {
-  CogIcon,
-  Building2Icon,
-  RotateCwIcon,
-  VanIcon,
-  Icon,
-} from 'lucide-react'
-import { Pulse } from '../pulse'
-import { SectionIntro } from '../section-intro'
+import { CogIcon, Building2Icon, RotateCwIcon, VanIcon } from 'lucide-react'
 import React from 'react'
 import {
   ScrollAnimation,
   ScrollOpacity,
-  ScrollScale,
   ScrollTranslateX,
   ScrollTranslateY,
 } from '../systaliko-ui/scroll-animation'
 import { cn } from '@/lib/utils'
+import { Button } from '../ui/button'
 
 interface SolutionCardProps extends React.ComponentProps<'div'> {
   title: string
@@ -84,20 +76,26 @@ export function Cta() {
           <ScrollOpacity
             inputRange={[0, 0.5]}
             opacityRange={[1, 0]}
-            className="mx-auto flex w-10/12 origin-center flex-col items-center justify-center text-center"
+            className="mx-auto flex w-10/12 origin-center flex-col items-center justify-center text-center md:w-8/12"
           >
-            <h2 className="text-4xl font-bold text-balance md:text-5xl">
+            <h2 className="text-4xl font-semibold tracking-tight text-balance">
               Grow Your Business with efficient energy management solutions
             </h2>
           </ScrollOpacity>
           <ScrollOpacity
             inputRange={[0.6, 1]}
             opacityRange={[0, 1]}
-            className="mx-auto flex w-10/12 origin-center flex-col items-center justify-center text-center"
+            className="mx-auto flex w-10/12 origin-center flex-col items-center justify-center space-y-4 text-center md:w-8/12"
           >
-            <h2 className="text-4xl font-bold text-balance md:text-5xl">
-              Grow Your Business with efficient energy management solutions
+            <h2 className="text-4xl font-semibold tracking-tight text-balance">
+              Meet sustainability targets with generation monitoring
             </h2>
+            <p className="text-balance">
+              Our solutions are designed to help you optimize your energy
+              management and reduce your costs while growing your business and
+              expanding your reach.
+            </p>
+            <Button>Book a demo</Button>
           </ScrollOpacity>
           <ScrollTranslateX
             xRange={['-200%', '100%']}
@@ -105,7 +103,11 @@ export function Cta() {
             className="flex max-w-full origin-bottom flex-nowrap gap-4"
           >
             {SOLUTIONS.map((solution) => (
-              <SolutionCard key={solution.title} {...solution} />
+              <SolutionCard
+                className="flex-1"
+                key={solution.title}
+                {...solution}
+              />
             ))}
           </ScrollTranslateX>
         </ScrollTranslateY>

@@ -38,24 +38,24 @@ const SERVICES = [
 
 export function Services() {
   return (
-    <section className="bg-accent text-accent-foreground px-8 py-20">
+    <section className="px-8 py-20">
       <div className="flex flex-wrap items-start gap-8">
         <SectionIntro
           title="services"
-          subtitle="We are a team of experts with a passion for innovation and delivering exceptional results."
-          className="sticky top-12 h-fit md:flex-1"
+          subtitle="Experts with passion for innovation and delivering exceptional results."
+          className="top-12 h-fit md:sticky md:flex-1"
         />
 
         <div>
           {SERVICES.map((service) => (
             <BgMask
               key={service.title}
-              className="hover:*:text-primary-foreground flex items-start gap-8 border-b p-8"
+              className="after:bg-accent flex items-start gap-8 border-b px-0 py-8 md:px-8"
             >
-              <service.icon className="text-primary size-6" />
+              <service.icon className="text-primary dark:text-foreground size-6" />
 
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold">{service.title}</h2>
+                <h2 className="text-2xl font-semibold">{service.title}</h2>
                 <p>{service.description}</p>
               </div>
             </BgMask>

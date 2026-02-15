@@ -10,12 +10,12 @@ const animationVariants = ANIMATION_VARIANTS['bottom']
 function HeroText() {
   return (
     <motion.div
-      transition={{ delayChildren: stagger(0.2), delay: 0.1 }}
+      transition={{ delayChildren: stagger(0.3), delay: 0.1 }}
       className="relative z-5 flex flex-col items-center justify-center space-y-4 text-center"
       initial="hidden"
       animate="visible"
     >
-      <MotionConfig transition={{ duration: 0.3, ease: 'easeInOut' }}>
+      <MotionConfig transition={{ duration: 0.5, ease: 'easeInOut' }}>
         <motion.h1
           variants={animationVariants}
           className="max-w-[25ch] text-5xl font-semibold tracking-tighter text-balance md:text-6xl xl:text-7xl"
@@ -37,7 +37,7 @@ function HeroText() {
         >
           <Button size="lg">Get Started</Button>
           <Button size={'lg'} variant="outline">
-            View Documentation <ArrowRightIcon className="text-primary" />
+            View Documentation <ArrowRightIcon />
           </Button>
         </motion.div>
       </MotionConfig>
@@ -49,7 +49,7 @@ export function Hero() {
   return (
     <section className="grid h-screen grid-cols-1 grid-rows-1 place-content-center *:col-start-1 *:row-start-1">
       <WorldMap>
-        <WorldMapGLow className="bg-background/50" />
+        <WorldMapGLow className="bg-background/50 dark:bg-background/0" />
         <WorldMapSvg>
           <MapPin x={280} y={100} delay={0} />
           {/* Europe */}
