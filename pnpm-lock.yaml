@@ -23,6 +23,9 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.3)
+      enera-corporate:
+        specifier: 'link:'
+        version: 'link:'
       lenis:
         specifier: ^1.3.17
         version: 1.3.17(react@19.2.3)
