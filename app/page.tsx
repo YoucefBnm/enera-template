@@ -16,14 +16,14 @@ export default function Page() {
       <Header />
       <Hero />
       <Services />
-      <Features />
+      {/* <Features />
 
       <Process />
       <Cta />
       <Locations />
-      <Testimonials />
+      <Testimonials /> */}
       {/* <Faq /> */}
-      <Footer />
+      {/* <Footer /> */}
     </ReactLenis>
   )
 }

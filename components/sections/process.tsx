@@ -1,10 +1,7 @@
 'use client'
 import { motion, useScroll, useTransform } from 'motion/react'
 import { SectionIntro } from '../section-intro'
-import {
-  CardsStackContainer,
-  CardSticky,
-} from '../systaliko-ui/cards/cards-stack'
+import { CardsStackContainer, CardSticky } from '../systaliko-ui/cards-stack'
 import React from 'react'
 const PROCESS_PHASES = [
   {

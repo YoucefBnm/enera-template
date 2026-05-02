@@ -1,11 +1,15 @@
 'use client'
 import { MotionConfig, motion, stagger } from 'motion/react'
-import { MapPin, WorldMap, WorldMapGLow, WorldMapSvg } from '../world-map'
 import { ANIMATION_VARIANTS } from '../systaliko-ui/animation-variants'
 import { Button } from '../ui/button'
 import { ArrowRightIcon } from 'lucide-react'
+import { Suspense, lazy } from 'react'
 
-const animationVariants = ANIMATION_VARIANTS['bottom']
+const EnergyShader = lazy(() =>
+  import('../shader').then((mod) => ({ default: mod.EnergyShader }))
+)
+
+const animationVariants = ANIMATION_VARIANTS['blur']
 
 function HeroText() {
   return (
@@ -18,14 +22,14 @@ function HeroText() {
       <MotionConfig transition={{ duration: 0.5, ease: 'easeInOut' }}>
         <motion.h1
           variants={animationVariants}
-          className="max-w-[25ch] text-5xl font-semibold tracking-tighter text-balance md:text-6xl xl:text-7xl"
+          className="max-w-[25ch] text-4xl font-medium tracking-tighter text-balance md:text-5xl xl:text-6xl"
         >
           Manage energy smarter Save cost reduce carbon
         </motion.h1>
 
         <motion.p
           variants={animationVariants}
-          className="text-accent-foreground max-w-[65ch] text-lg text-balance"
+          className="text-muted-foreground max-w-[65ch] text-balance"
         >
           Real-time monitoring, scalable integrations, and actionable insights
           for utilities and businesses.
@@ -35,8 +39,8 @@ function HeroText() {
           variants={animationVariants}
           className="flex flex-wrap items-center gap-3"
         >
-          <Button size="lg">Get Started</Button>
-          <Button size={'lg'} variant="outline">
+          <Button>Get Started</Button>
+          <Button variant="secondary">
             View Documentation <ArrowRightIcon />
           </Button>
         </motion.div>
@@ -47,18 +51,15 @@ function HeroText() {
 
 export function Hero() {
   return (
-    <section className="grid h-screen grid-cols-1 grid-rows-1 place-content-center *:col-start-1 *:row-start-1">
-      <WorldMap>
-        <WorldMapGLow className="bg-background/50 dark:bg-background/0" />
-        <WorldMapSvg>
-          <MapPin x={280} y={100} delay={0} />
-          {/* Europe */}
-          <MapPin x={640} y={80} delay={1} />
-          {/* Asia */}
-          <MapPin x={900} y={120} delay={2} />
-        </WorldMapSvg>
-      </WorldMap>
+    <div className="grid h-screen grid-cols-1 grid-rows-1 place-content-center overflow-hidden *:col-start-1 *:row-start-1">
       <HeroText />
-    </section>
+      <Suspense fallback={<div className="bg-background size-full" />}>
+        <EnergyShader
+          background="#ece9e9"
+          colors={['#ededed', '#7dd8b4']}
+          speed={0.2}
+        />
+      </Suspense>
+    </div>
   )
 }

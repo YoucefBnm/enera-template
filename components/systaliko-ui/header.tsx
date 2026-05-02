@@ -1,13 +1,13 @@
-'use client';
-import { cn } from '@/lib/utils';
-import { useToggleOnScroll } from '@/components/systaliko-ui/utils/use-toggle-onscroll';
-import { HTMLMotionProps, motion } from 'motion/react';
-import Link from 'next/link';
+'use client'
+import { cn } from '@/lib/utils'
+import { useToggleOnScroll } from '@/components/systaliko-ui/use-toggle-onscroll'
+import { HTMLMotionProps, motion } from 'motion/react'
+import Link from 'next/link'
 
 export function HeaderLogo({
   ...props
 }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  return <Link aria-label="logo" href="/" {...props} />;
+  return <Link aria-label="logo" href="/" {...props} />
 }
 
 export function Header({
@@ -17,17 +17,17 @@ export function Header({
 }: HTMLMotionProps<'header'> & { toggleOnScroll?: boolean }) {
   const { isHidden, setIsHidden } = toggleOnScroll
     ? useToggleOnScroll()
-    : { isHidden: false, setIsHidden: () => {} };
-  const showHeader = () => setIsHidden(false);
+    : { isHidden: false, setIsHidden: () => {} }
+  const showHeader = () => setIsHidden(false)
 
   return (
     <motion.header
-      className={cn('flex justify-between items-center', className)}
+      className={cn('flex items-center justify-between', className)}
       animate={isHidden ? { y: '-100%' } : { y: '0%' }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       whileHover={{ y: '0%' }}
       onFocusCapture={showHeader}
       {...props}
     />
-  );
+  )
 }
