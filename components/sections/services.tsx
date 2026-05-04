@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from 'lucide-react'
+import { ChevronsRightIcon } from 'lucide-react'
 import {
   ClipText,
   TextScrollRead,
@@ -9,7 +9,7 @@ import { SERVICES } from '@/data'
 
 export function Services() {
   return (
-    <section>
+    <section id="sevices">
       <TextScrollRead spaceClass="h-20">
         <TextScrollReadWrap
           yRange={[0, 80]}
@@ -34,7 +34,8 @@ export function Services() {
             className={'text-primary-foreground'}
             variant="link"
           >
-            Learn more <ArrowRightIcon />
+            Learn more
+            <ChevronsRightIcon />
           </Button>
         </div>
 
