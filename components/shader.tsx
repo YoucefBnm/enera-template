@@ -1,159 +1,489 @@
-import { cn } from '@/lib/utils'
-import React, { useEffect, useRef, useState } from 'react'
+'use client'
 
-// --- WebGL 2 Shaders ---
+/**
+ * shader.tsx
+ *
+ * Exports three components from a single unified file:
+ *
+ *   <GradientShader />      — animated flowing gradient (WebGL2 quad)
+ *   <HurricaneShader />     — particle spiral / hurricane effect (WebGL2 points)
+ *   <Shader variant="…" />  — convenience wrapper that picks one of the above
+ *
+ * Shared props (BaseShaderProps):
+ *   colors    [ShaderColor, ShaderColor, ShaderColor]
+ *             Any mix of hex "#ff0000", rgb/rgba "rgb(255,0,0)",
+ *             or CSS custom properties "var(--brand-color)"
+ *
+ *   intensity number  0–2, default 1
+ *             Gradient → scales wave amplitude + noise brightness
+ *             Hurricane → scales particle glow size
+ *
+ *   density   number  0–2, default 1
+ *             Gradient → scales noise grain frequency
+ *             Hurricane → multiplies particle count
+ *
+ * Additional per-variant props documented on each interface below.
+ */
 
-const particleVS = `#version 300 es
-precision highp float;
+import React from 'react'
 
-in vec2 a_position;
-in vec3 a_color;
-in float a_size;
-in float a_alpha;
+// ─────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────
 
-out vec3 v_color;
-out float v_alpha;
+/** Any valid color string: hex "#ff0080", rgb "rgb(255,0,128)", or CSS var "var(--color-brand)" */
+export type ShaderColor = string
 
-uniform vec2 u_resolution;
-uniform float u_dpr;
-
-void main() {
-    // Convert to clip space
-    vec2 clipSpace = (a_position / u_resolution) * 2.0 - 1.0;
-    gl_Position = vec4(clipSpace * vec2(1.0, -1.0), 0.0, 1.0);
-
-    gl_PointSize = a_size * u_dpr * 1.8; // Enhanced bloom for professional glow
-    v_color = a_color;
-    v_alpha = a_alpha;
-}
-`
-
-const particleFS = `#version 300 es
-precision highp float;
-
-in vec3 v_color;
-in float v_alpha;
-
-out vec4 fragColor;
-
-void main() {
-    vec2 coord = gl_PointCoord - vec2(0.5);
-    float dist = length(coord);
-
-    // Refined glow with tighter falloff
-    float alpha = (1.0 - smoothstep(0.0, 0.5, dist)) * v_alpha;
-    alpha = pow(alpha, 1.3); // Sharper edges
-
-    // Bright core with subtle white center
-    float core = 1.0 - smoothstep(0.0, 0.2, dist);
-    vec3 finalColor = mix(v_color, vec3(1.0), core * 0.4);
-
-    if (alpha <= 0.01) discard;
-
-    // Pre-multiply alpha for additive blending
-    fragColor = vec4(finalColor * alpha, alpha);
-}
-`
-
-const fadeVS = `#version 300 es
-precision highp float;
-in vec2 a_position;
-void main() {
-    gl_Position = vec4(a_position, 0.0, 1.0);
-}
-`
-
-const fadeFS = `#version 300 es
-precision highp float;
-uniform vec3 u_background;
-out vec4 fragColor;
-void main() {
-    // Faster fade for cleaner, more professional rays
-    fragColor = vec4(u_background, 0.25);
-}
-`
-
-// --- Utility Functions ---
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
-  const fullHex = hex.replace(
-    shorthandRegex,
-    (m, r, g, b) => r + r + g + g + b + b
-  )
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex)
-  return result
-    ? {
-        r: parseInt(result[1], 16) / 255,
-        g: parseInt(result[2], 16) / 255,
-        b: parseInt(result[3], 16) / 255,
-      }
-    : { r: 0, g: 0.95, b: 0.99 } // Default neon blue
+interface BaseShaderProps {
+  colors?: [ShaderColor, ShaderColor, ShaderColor]
+  /** Scales wave amplitude / particle glow. Range 0–2, default 1. */
+  intensity?: number
+  /** Scales noise grain frequency / particle count. Range 0–2, default 1. */
+  density?: number
+  className?: string
 }
 
-function createShader(
+export interface GradientShaderProps extends BaseShaderProps {
+  /** Continuously animate the gradient. @default false */
+  animate?: boolean
+}
+
+export interface HurricaneShaderProps extends BaseShaderProps {
+  /** Background fill color (supports same formats as `colors`). @default "#0a0a0a" */
+  background?: ShaderColor
+  /** Animation playback speed multiplier. Range 0–3, default 1. */
+  speed?: number
+}
+
+export type ShaderVariant = 'gradient' | 'hurricane'
+
+export interface ShaderProps extends BaseShaderProps {
+  /** Which shader to render. */
+  variant: ShaderVariant
+  /** [gradient only] Animate continuously. @default false */
+  animate?: boolean
+  /** [hurricane only] Background fill color. @default "#0a0a0a" */
+  background?: ShaderColor
+  /** [hurricane only] Animation speed multiplier. @default 1 */
+  speed?: number
+}
+
+// ─────────────────────────────────────────────────────────────
+// Shared WebGL utilities
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Resolve a ShaderColor to a normalized [r, g, b] tuple (each 0–1).
+ * Supports hex, rgb/rgba strings, and CSS custom properties.
+ */
+function resolveColor(
+  raw: string,
+  contextEl: Element
+): [number, number, number] {
+  let color = raw.trim()
+
+  // Resolve CSS custom properties at runtime
+  if (color.startsWith('var(')) {
+    const varName = color.slice(4, -1).trim()
+    color = getComputedStyle(contextEl).getPropertyValue(varName).trim()
+  }
+
+  // rgb(r, g, b) / rgba(r, g, b, a)
+  const rgbMatch = color.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+  if (rgbMatch) {
+    return [
+      parseInt(rgbMatch[1], 10) / 255,
+      parseInt(rgbMatch[2], 10) / 255,
+      parseInt(rgbMatch[3], 10) / 255,
+    ]
+  }
+
+  // Hex — 3- or 6-digit
+  const hex = color.replace('#', '')
+  const full =
+    hex.length === 3
+      ? hex
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : hex
+  return [
+    parseInt(full.slice(0, 2), 16) / 255,
+    parseInt(full.slice(2, 4), 16) / 255,
+    parseInt(full.slice(4, 6), 16) / 255,
+  ]
+}
+
+function compileShader(
   gl: WebGL2RenderingContext,
   type: number,
   source: string
-) {
+): WebGLShader | null {
   const shader = gl.createShader(type)
   if (!shader) return null
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error('Shader compilation error:', gl.getShaderInfoLog(shader))
+    console.error('[shader] Compile error:', gl.getShaderInfoLog(shader))
     gl.deleteShader(shader)
     return null
   }
   return shader
 }
 
-function createProgram(
+function linkProgram(
   gl: WebGL2RenderingContext,
-  vsSource: string,
-  fsSource: string
-) {
-  const vs = createShader(gl, gl.VERTEX_SHADER, vsSource)
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource)
+  vsSrc: string,
+  fsSrc: string
+): WebGLProgram | null {
+  const vs = compileShader(gl, gl.VERTEX_SHADER, vsSrc)
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSrc)
   if (!vs || !fs) return null
-
-  const program = gl.createProgram()
-  if (!program) return null
-  gl.attachShader(program, vs)
-  gl.attachShader(program, fs)
-  gl.linkProgram(program)
-
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(program))
+  const prog = gl.createProgram()
+  if (!prog) return null
+  gl.attachShader(prog, vs)
+  gl.attachShader(prog, fs)
+  gl.linkProgram(prog)
+  // Shaders are now part of the program; safe to free
+  gl.deleteShader(vs)
+  gl.deleteShader(fs)
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.error('[shader] Link error:', gl.getProgramInfoLog(prog))
+    gl.deleteProgram(prog)
     return null
   }
-  return program
+  return prog
 }
 
-// --- Particle System ---
+// Full-screen quad (two triangles) — reused by both shaders
+const QUAD = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1])
+
+// ─────────────────────────────────────────────────────────────
+// GradientShader — GLSL sources
+// ─────────────────────────────────────────────────────────────
+
+const GRADIENT_VS = /* glsl */ `#version 300 es
+in vec4 a_position;
+out vec2 v_uv;
+
+void main() {
+  v_uv = a_position.xy * 0.5 + 0.5;
+  gl_Position = a_position;
+}
+`
+
+const GRADIENT_FS = /* glsl */ `#version 300 es
+precision highp float;
+
+in vec2 v_uv;
+out vec4 fragColor;
+
+uniform float u_time;
+uniform vec2  u_resolution;
+uniform vec3  u_color1;
+uniform vec3  u_color2;
+uniform vec3  u_color3;
+// ─── new ───────────────────────────────────────────
+uniform float u_intensity; // scales wave amplitude & noise brightness (0–2)
+uniform float u_density;   // scales noise grain frequency (0–2)
+// ───────────────────────────────────────────────────
+
+// Bayer 4×4 matrix for ordered dithering
+const mat4 bayer = mat4(
+   0.0/64.0, 32.0/64.0,  8.0/64.0, 40.0/64.0,
+  48.0/64.0, 16.0/64.0, 56.0/64.0, 24.0/64.0,
+  12.0/64.0, 44.0/64.0,  4.0/64.0, 36.0/64.0,
+  60.0/64.0, 28.0/64.0, 52.0/64.0, 20.0/64.0
+);
+
+float hash(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float bayerDither(vec2 fragCoord) {
+  int x = int(mod(fragCoord.x, 4.0));
+  int y = int(mod(fragCoord.y, 4.0));
+  return bayer[x][y];
+}
+
+void main() {
+  vec2 uv        = v_uv;
+  vec2 fragCoord = uv * u_resolution;
+  float timeShift = u_time * 0.25;
+
+  // Wave patterns — amplitude scaled by u_intensity
+  float waveAmp = 0.15 * u_intensity;
+  float wave1 = sin(uv.x * 3.0 + timeShift)        * cos(uv.y * 2.0 + timeShift * 0.8);
+  float wave2 = sin(uv.y * 2.5 - timeShift * 0.6)  * cos(uv.x * 3.5 - timeShift);
+  float wave3 = sin((uv.x + uv.y) * 2.0 + timeShift * 1.2);
+  float wavePattern = (wave1 + wave2 + wave3) * waveAmp;
+
+  // Animated diagonal gradient
+  vec2 gradientDir = vec2(
+    cos(timeShift * 0.4) * 0.8 + sin(timeShift * 0.3) * 0.5,
+    sin(timeShift * 0.4) * 0.8 + cos(timeShift * 0.3) * 0.5
+  );
+  float gradientValue = dot(uv - 0.5, gradientDir) + 0.5;
+
+  // Pulsing radial component
+  float radial = length(uv - vec2(
+    0.5 + sin(timeShift * 0.3) * 0.2,
+    0.5 + cos(timeShift * 0.4) * 0.2
+  ));
+  radial *= (0.8 + sin(timeShift * 0.5) * 0.3);
+  gradientValue = mix(gradientValue, radial, 0.4);
+
+  // Wave distortion + slow drift — both scaled by u_intensity
+  gradientValue += wavePattern;
+  gradientValue += sin(u_time * 0.2 + uv.x * 2.0) * waveAmp;
+  gradientValue += cos(u_time * 0.15 + uv.y * 2.5) * waveAmp;
+  gradientValue  = clamp(gradientValue, 0.0, 1.0);
+
+  // Smooth three-color blend
+  float t1 = smoothstep(0.0, 0.5, gradientValue);
+  vec3 blend1 = mix(u_color1, u_color2, t1);
+  float t2 = smoothstep(0.3, 1.0, gradientValue);
+  vec3 finalColor = mix(blend1, u_color3, t2);
+
+  // Noise grain — frequency scaled by u_density, brightness by u_intensity
+  float noiseScale = 200.0 * u_density;
+  float noiseValue  = noise(uv * noiseScale + u_time * 0.05) * (0.015 * u_intensity);
+  finalColor += noiseValue;
+
+  // Bayer dither — strength scaled by u_intensity
+  float ditherValue = bayerDither(fragCoord) - 0.5;
+  finalColor += ditherValue * (0.004 * u_intensity);
+
+  // Subtle gamma lift
+  finalColor = pow(finalColor, vec3(0.95));
+
+  fragColor = vec4(finalColor, 1.0);
+}
+`
+
+// ─────────────────────────────────────────────────────────────
+// GradientShader component
+// ─────────────────────────────────────────────────────────────
+
+const DEFAULT_GRADIENT_COLORS: [string, string, string] = [
+  '#8C59D9', // soft purple
+  '#D973A6', // soft pink
+  '#73A6F2', // soft blue
+]
+
+export function GradientShader({
+  colors = DEFAULT_GRADIENT_COLORS,
+  animate = false,
+  intensity = 1,
+  density = 1,
+  className,
+}: GradientShaderProps) {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
+
+  // Clamp so uniforms never go negative (avoids shader surprises)
+  const safeIntensity = Math.max(0, intensity)
+  const safeDensity = Math.max(0.01, density)
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const gl = canvas.getContext('webgl2', {
+      alpha: false,
+      antialias: true,
+      powerPreference: 'high-performance',
+    })
+    if (!gl) {
+      console.error('[GradientShader] WebGL2 not supported')
+      return
+    }
+
+    const program = linkProgram(gl, GRADIENT_VS, GRADIENT_FS)
+    if (!program) return
+    gl.useProgram(program)
+
+    // Geometry
+    const posLoc = gl.getAttribLocation(program, 'a_position')
+    const buf = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+    gl.bufferData(gl.ARRAY_BUFFER, QUAD, gl.STATIC_DRAW)
+    const vao = gl.createVertexArray()
+    gl.bindVertexArray(vao)
+    gl.enableVertexAttribArray(posLoc)
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0)
+
+    // Uniform locations
+    const uResolution = gl.getUniformLocation(program, 'u_resolution')
+    const uTime = gl.getUniformLocation(program, 'u_time')
+    const uColor1 = gl.getUniformLocation(program, 'u_color1')
+    const uColor2 = gl.getUniformLocation(program, 'u_color2')
+    const uColor3 = gl.getUniformLocation(program, 'u_color3')
+    const uIntensity = gl.getUniformLocation(program, 'u_intensity')
+    const uDensity = gl.getUniformLocation(program, 'u_density')
+
+    // Upload colors (resolved against the canvas element for CSS-var support)
+    const [c1, c2, c3] = colors.map((c) => resolveColor(c, canvas))
+    gl.uniform3f(uColor1, ...c1)
+    gl.uniform3f(uColor2, ...c2)
+    gl.uniform3f(uColor3, ...c3)
+    gl.uniform1f(uIntensity, safeIntensity)
+    gl.uniform1f(uDensity, safeDensity)
+
+    // Resize
+    const handleResize = () => {
+      const dpr = window.devicePixelRatio || 1
+      const w = Math.floor(canvas.clientWidth * dpr)
+      const h = Math.floor(canvas.clientHeight * dpr)
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w
+        canvas.height = h
+        gl.viewport(0, 0, w, h)
+        gl.uniform2f(uResolution, w, h)
+      }
+    }
+    handleResize()
+
+    const ro = new ResizeObserver(() => {
+      handleResize()
+      if (!animate) renderFrame(0)
+    })
+    ro.observe(canvas)
+
+    let rafId = 0
+
+    const renderFrame = (ts: number) => {
+      gl.clearColor(0, 0, 0, 1)
+      gl.clear(gl.COLOR_BUFFER_BIT)
+      gl.uniform1f(uTime, ts * 0.001)
+      gl.drawArrays(gl.TRIANGLES, 0, 6)
+    }
+
+    if (animate) {
+      const loop = (ts: number) => {
+        renderFrame(ts)
+        rafId = requestAnimationFrame(loop)
+      }
+      rafId = requestAnimationFrame(loop)
+    } else {
+      renderFrame(0)
+    }
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      ro.disconnect()
+      gl.deleteBuffer(buf)
+      gl.deleteVertexArray(vao)
+      gl.deleteProgram(program)
+    }
+  }, [colors, animate, safeIntensity, safeDensity])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={['block size-full', className].filter(Boolean).join(' ')}
+    />
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// HurricaneShader — GLSL sources
+// ─────────────────────────────────────────────────────────────
+
+const PARTICLE_VS = /* glsl */ `#version 300 es
+precision highp float;
+
+in vec2  a_position;
+in vec3  a_color;
+in float a_size;
+in float a_alpha;
+
+out vec3  v_color;
+out float v_alpha;
+
+uniform vec2  u_resolution;
+uniform float u_dpr;
+
+void main() {
+  vec2 clip = (a_position / u_resolution) * 2.0 - 1.0;
+  gl_Position = vec4(clip * vec2(1.0, -1.0), 0.0, 1.0);
+  gl_PointSize = a_size * u_dpr * 1.8;
+  v_color = a_color;
+  v_alpha = a_alpha;
+}
+`
+
+const PARTICLE_FS = /* glsl */ `#version 300 es
+precision highp float;
+
+in vec3  v_color;
+in float v_alpha;
+out vec4 fragColor;
+
+void main() {
+  vec2  coord = gl_PointCoord - vec2(0.5);
+  float dist  = length(coord);
+
+  float alpha = (1.0 - smoothstep(0.0, 0.5, dist)) * v_alpha;
+  alpha = pow(alpha, 1.3);
+
+  float core = 1.0 - smoothstep(0.0, 0.2, dist);
+  vec3 finalColor = mix(v_color, vec3(1.0), core * 0.4);
+
+  if (alpha <= 0.01) discard;
+  fragColor = vec4(finalColor * alpha, alpha); // pre-multiplied alpha
+}
+`
+
+const FADE_VS = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 a_position;
+void main() { gl_Position = vec4(a_position, 0.0, 1.0); }
+`
+
+const FADE_FS = /* glsl */ `#version 300 es
+precision highp float;
+uniform vec3 u_background;
+out vec4 fragColor;
+void main() { fragColor = vec4(u_background, 0.25); }
+`
+
+// ─────────────────────────────────────────────────────────────
+// Particle class (CPU simulation)
+// ─────────────────────────────────────────────────────────────
 
 class Particle {
-  x: number = 0
-  y: number = 0
-  angle: number = 0
-  radius: number = 0
-  radiusVel: number = 0
-  angularVel: number = 0
-  r: number = 0
-  g: number = 0
-  b: number = 0
-  size: number = 0
-  life: number = 0
-  maxLife: number = 0
-  layer: number = 0
-  spiralSpeed: number = 0
+  x = 0
+  y = 0
+  angle = 0
+  radius = 0
+  radiusVel = 0
+  angularVel = 0
+  spiralSpeed = 0
+  r = 0
+  g = 0
+  b = 0
+  size = 0
+  life = 0
+  maxLife = 0
+  layer = 0
 
   constructor(
     width: number,
     height: number,
-    colors: string[],
+    colors: [number, number, number][],
     sizeMultiplier: number,
     speedMultiplier: number
   ) {
@@ -163,72 +493,69 @@ class Particle {
   spawn(
     width: number,
     height: number,
-    colors: string[],
+    colors: [number, number, number][],
     sizeMultiplier: number,
     speedMultiplier: number
   ) {
-    const centerX = width / 2
-    const centerY = height / 2
-
     this.angle = Math.random() * Math.PI * 2
     this.radius = Math.random() * 80 + 20
-
-    this.x = centerX + Math.cos(this.angle) * this.radius
-    this.y = centerY + Math.sin(this.angle) * this.radius
-
+    this.x = width / 2 + Math.cos(this.angle) * this.radius
+    this.y = height / 2 + Math.sin(this.angle) * this.radius
     this.layer = Math.random()
 
-    // Pick a random color from the provided colors
-    const colorHex = colors[Math.floor(Math.random() * colors.length)]
-    const rgb = hexToRgb(colorHex)
-    this.r = rgb.r
-    this.g = rgb.g
-    this.b = rgb.b
+    // Pick a resolved color
+    const [r, g, b] = colors[Math.floor(Math.random() * colors.length)]
+    this.r = r
+    this.g = g
+    this.b = b
 
     if (this.layer < 0.4) {
-      // Inner rays
+      // Inner rays — larger, faster
       this.size = (Math.random() * 3 + 5) * sizeMultiplier
       this.radiusVel = (Math.random() * 50 + 70) * speedMultiplier
       this.angularVel = (Math.random() * 1.8 + 1.8) * speedMultiplier
       this.spiralSpeed = (Math.random() * 0.25 + 0.25) * speedMultiplier
       this.maxLife = Math.random() * 1.5 + 2
     } else {
-      // Outer swirl particles
+      // Outer swirl — smaller, slower
       this.size = (Math.random() * 2 + 2) * sizeMultiplier
       this.radiusVel = (Math.random() * 30 + 40) * speedMultiplier
       this.angularVel = (Math.random() * 2.2 + 1.2) * speedMultiplier
       this.spiralSpeed = (Math.random() * 0.35 + 0.2) * speedMultiplier
       this.maxLife = Math.random() * 2.5 + 2
     }
-
     this.life = this.maxLife
   }
 }
 
-// --- React Component ---
+// ─────────────────────────────────────────────────────────────
+// HurricaneShader component
+// ─────────────────────────────────────────────────────────────
 
-interface EnergyShaderProps extends React.ComponentPropsWithRef<'canvas'> {
-  colors?: string[]
-  background?: string
-  size?: number
-  speed?: number
-}
-
-const DEFAULT_COLORS = ['#00f2fe', '#4facfe', '#ffd700', '#00ff87']
+const DEFAULT_HURRICANE_COLORS: [string, string, string] = [
+  '#00f2fe',
+  '#4facfe',
+  '#ffd700',
+]
 const DEFAULT_BACKGROUND = '#0a0a0a'
+/** Base particle count before density scaling */
+const BASE_PARTICLE_COUNT = 100
 
-export function EnergyShader({
-  colors = DEFAULT_COLORS,
+export function HurricaneShader({
+  colors = DEFAULT_HURRICANE_COLORS,
   background = DEFAULT_BACKGROUND,
-  size = 1,
+  intensity = 1,
+  density = 1,
   speed = 1,
   className,
-  ...props
-}: EnergyShaderProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const scrollRef = useRef({ y: 0, velocity: 0 })
+}: HurricaneShaderProps & { speed?: number }) {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
-  useEffect(() => {
+  const safeIntensity = Math.max(0, intensity)
+  const safeDensity = Math.max(0.1, density)
+  const safeSpeed = Math.max(0, speed)
+
+  React.useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -239,17 +566,17 @@ export function EnergyShader({
       preserveDrawingBuffer: true,
       powerPreference: 'high-performance',
     })
-
     if (!gl) {
-      console.error('WebGL 2 not supported')
+      console.error('[HurricaneShader] WebGL2 not supported')
       return
     }
 
-    const particleProg = createProgram(gl, particleVS, particleFS)
-    const fadeProg = createProgram(gl, fadeVS, fadeFS)
+    const particleProg = linkProgram(gl, PARTICLE_VS, PARTICLE_FS)
+    const fadeProg = linkProgram(gl, FADE_VS, FADE_FS)
     if (!particleProg || !fadeProg) return
 
-    const pLocs = {
+    // Attribute / uniform locations
+    const pLoc = {
       position: gl.getAttribLocation(particleProg, 'a_position'),
       color: gl.getAttribLocation(particleProg, 'a_color'),
       size: gl.getAttribLocation(particleProg, 'a_size'),
@@ -257,37 +584,52 @@ export function EnergyShader({
       resolution: gl.getUniformLocation(particleProg, 'u_resolution'),
       dpr: gl.getUniformLocation(particleProg, 'u_dpr'),
     }
-
-    const fLocs = {
+    const fLoc = {
       position: gl.getAttribLocation(fadeProg, 'a_position'),
       background: gl.getUniformLocation(fadeProg, 'u_background'),
     }
 
-    const quadBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer)
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      gl.STATIC_DRAW
-    )
+    // Full-screen quad buffer (used by fade pass)
+    const quadBuf = gl.createBuffer()!
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf)
+    gl.bufferData(gl.ARRAY_BUFFER, QUAD, gl.STATIC_DRAW)
 
+    // Resolve colors once (CSS vars need the DOM element)
+    const resolvedColors = colors.map((c) => resolveColor(c, canvas)) as [
+      number,
+      number,
+      number,
+    ][]
+
+    const bgColor = resolveColor(background, canvas)
+
+    // Particle count driven by density
     const isMobile = window.innerWidth < 768
-    const particleCount = isMobile ? 50 : 100
+    const baseCount = isMobile ? BASE_PARTICLE_COUNT / 2 : BASE_PARTICLE_COUNT
+    const particleCount = Math.round(baseCount * safeDensity)
+
     const particles = Array.from(
       { length: particleCount },
       () =>
-        new Particle(window.innerWidth, window.innerHeight, colors, size, speed)
+        new Particle(
+          window.innerWidth,
+          window.innerHeight,
+          resolvedColors,
+          safeIntensity,
+          safeSpeed
+        )
     )
 
-    const particleData = new Float32Array(particleCount * 7)
-    const particleBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer)
+    // GPU buffer: 7 floats per particle [x, y, r, g, b, size, alpha]
+    const STRIDE = 7
+    const particleData = new Float32Array(particleCount * STRIDE)
+    const particleBuf = gl.createBuffer()!
+    gl.bindBuffer(gl.ARRAY_BUFFER, particleBuf)
     gl.bufferData(gl.ARRAY_BUFFER, particleData.byteLength, gl.DYNAMIC_DRAW)
-
-    const bgRgb = hexToRgb(background)
 
     let width = canvas.clientWidth
     let height = canvas.clientHeight
+
     const handleResize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       width = canvas.clientWidth
@@ -295,124 +637,141 @@ export function EnergyShader({
       canvas.width = width * dpr
       canvas.height = height * dpr
       gl.viewport(0, 0, canvas.width, canvas.height)
-
-      gl.clearColor(bgRgb.r, bgRgb.g, bgRgb.b, 1.0)
+      gl.clearColor(bgColor[0], bgColor[1], bgColor[2], 1)
       gl.clear(gl.COLOR_BUFFER_BIT)
     }
-    const resizeObserver = new ResizeObserver(handleResize)
-    resizeObserver.observe(canvas)
+    const ro = new ResizeObserver(handleResize)
+    ro.observe(canvas)
     handleResize()
 
+    // Scroll velocity for reactive boost
+    const scroll = { velocity: 0 }
     let lastScrollY = window.scrollY
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      scrollRef.current.velocity = currentScrollY - lastScrollY
-      lastScrollY = currentScrollY
+    const onScroll = () => {
+      scroll.velocity = window.scrollY - lastScrollY
+      lastScrollY = window.scrollY
     }
+    window.addEventListener('scroll', onScroll, { passive: true })
 
-    window.addEventListener('scroll', handleScroll)
-
-    let animationId: number
+    let rafId = 0
     let lastTime = performance.now()
 
     const render = (now: number) => {
       const dt = Math.min((now - lastTime) / 1000, 0.1)
       lastTime = now
 
-      scrollRef.current.velocity *= 0.95
-      const scrollBoost = Math.abs(scrollRef.current.velocity) * 0.05
-
-      const centerX = width / 2
-      const centerY = height / 2
+      scroll.velocity *= 0.95
+      const scrollBoost = Math.abs(scroll.velocity) * 0.05
+      const cx = width / 2
+      const cy = height / 2
+      const maxRadius = Math.max(width, height) * 0.7
 
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i]
-
-        const radiusBoost = 1 + scrollBoost * 0.5
-        p.radius += p.radiusVel * dt * radiusBoost
+        p.radius += p.radiusVel * dt * (1 + scrollBoost * 0.5)
         p.angle += p.angularVel * dt * (1 + scrollBoost * 0.3)
         p.angle += p.spiralSpeed * (p.radius / 100) * dt
-
-        p.x = centerX + Math.cos(p.angle) * p.radius
-        p.y = centerY + Math.sin(p.angle) * p.radius
-
+        p.x = cx + Math.cos(p.angle) * p.radius
+        p.y = cy + Math.sin(p.angle) * p.radius
         p.life -= dt
 
-        const maxRadius = Math.max(width, height) * 0.7
         if (p.life <= 0 || p.radius > maxRadius) {
-          p.spawn(width, height, colors, size, speed)
+          p.spawn(width, height, resolvedColors, safeIntensity, safeSpeed)
         }
 
         const lifePct = p.life / p.maxLife
-        const fadeIn = Math.min(1.0, lifePct * 3)
-        const fadeOut = Math.min(1.0, (1 - lifePct) * 5)
-        const alpha = fadeIn * fadeOut
-
-        const offset = i * 7
-        particleData[offset + 0] = p.x
-        particleData[offset + 1] = p.y
-        particleData[offset + 2] = p.r
-        particleData[offset + 3] = p.g
-        particleData[offset + 4] = p.b
-        particleData[offset + 5] = p.size
-        particleData[offset + 6] = alpha
+        const alpha = Math.min(1, lifePct * 3) * Math.min(1, (1 - lifePct) * 5)
+        const off = i * STRIDE
+        particleData[off + 0] = p.x
+        particleData[off + 1] = p.y
+        particleData[off + 2] = p.r
+        particleData[off + 3] = p.g
+        particleData[off + 4] = p.b
+        particleData[off + 5] = p.size
+        particleData[off + 6] = alpha
       }
 
+      // ── Fade pass (darkens previous frame for trails) ──
       gl.useProgram(fadeProg)
-      gl.uniform3f(fLocs.background, bgRgb.r, bgRgb.g, bgRgb.b)
-      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer)
-      gl.enableVertexAttribArray(fLocs.position)
-      gl.vertexAttribPointer(fLocs.position, 2, gl.FLOAT, false, 0, 0)
-
+      gl.uniform3f(fLoc.background, bgColor[0], bgColor[1], bgColor[2])
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf)
+      gl.enableVertexAttribArray(fLoc.position)
+      gl.vertexAttribPointer(fLoc.position, 2, gl.FLOAT, false, 0, 0)
       gl.enable(gl.BLEND)
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
       gl.drawArrays(gl.TRIANGLES, 0, 6)
 
+      // ── Particle pass ──
       gl.useProgram(particleProg)
-      gl.bindBuffer(gl.ARRAY_BUFFER, particleBuffer)
+      gl.bindBuffer(gl.ARRAY_BUFFER, particleBuf)
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, particleData)
 
-      gl.enableVertexAttribArray(pLocs.position)
-      gl.enableVertexAttribArray(pLocs.color)
-      gl.enableVertexAttribArray(pLocs.size)
-      gl.enableVertexAttribArray(pLocs.alpha)
+      const stride4 = STRIDE * 4
+      gl.enableVertexAttribArray(pLoc.position)
+      gl.enableVertexAttribArray(pLoc.color)
+      gl.enableVertexAttribArray(pLoc.size)
+      gl.enableVertexAttribArray(pLoc.alpha)
+      gl.vertexAttribPointer(pLoc.position, 2, gl.FLOAT, false, stride4, 0)
+      gl.vertexAttribPointer(pLoc.color, 3, gl.FLOAT, false, stride4, 2 * 4)
+      gl.vertexAttribPointer(pLoc.size, 1, gl.FLOAT, false, stride4, 5 * 4)
+      gl.vertexAttribPointer(pLoc.alpha, 1, gl.FLOAT, false, stride4, 6 * 4)
 
-      const stride = 7 * 4
-      gl.vertexAttribPointer(pLocs.position, 2, gl.FLOAT, false, stride, 0)
-      gl.vertexAttribPointer(pLocs.color, 3, gl.FLOAT, false, stride, 2 * 4)
-      gl.vertexAttribPointer(pLocs.size, 1, gl.FLOAT, false, stride, 5 * 4)
-      gl.vertexAttribPointer(pLocs.alpha, 1, gl.FLOAT, false, stride, 6 * 4)
+      gl.uniform2f(pLoc.resolution, width, height)
+      gl.uniform1f(pLoc.dpr, Math.min(window.devicePixelRatio || 1, 2))
 
-      gl.uniform2f(pLocs.resolution, width, height)
-      gl.uniform1f(pLocs.dpr, Math.min(window.devicePixelRatio || 1, 2))
-
-      // Use pre-multiplied alpha blending instead of pure additive
-      // This allows visibility on both dark and light backgrounds
+      // Pre-multiplied alpha — allows correct blending over any background
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
       gl.drawArrays(gl.POINTS, 0, particleCount)
 
-      animationId = requestAnimationFrame(render)
+      rafId = requestAnimationFrame(render)
     }
 
-    animationId = requestAnimationFrame(render)
+    rafId = requestAnimationFrame(render)
 
     return () => {
-      cancelAnimationFrame(animationId)
-      resizeObserver.disconnect()
-      window.removeEventListener('scroll', handleScroll)
-
+      cancelAnimationFrame(rafId)
+      ro.disconnect()
+      window.removeEventListener('scroll', onScroll)
       gl.deleteProgram(particleProg)
       gl.deleteProgram(fadeProg)
-      gl.deleteBuffer(quadBuffer)
-      gl.deleteBuffer(particleBuffer)
+      gl.deleteBuffer(quadBuf)
+      gl.deleteBuffer(particleBuf)
     }
-  }, [colors, background, size, speed])
+  }, [colors, background, safeIntensity, safeDensity, safeSpeed])
 
   return (
     <canvas
       ref={canvasRef}
-      className={cn('size-full touch-none', className)}
-      {...props}
+      className={['size-full touch-none', className].filter(Boolean).join(' ')}
     />
   )
 }
+
+// ─────────────────────────────────────────────────────────────
+// Shader — unified wrapper with variant prop
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Convenience wrapper. Picks the right shader based on `variant`.
+ *
+ * @example
+ * <Shader variant="gradient" colors={["#ff0", "#f0f", "#0ff"]} animate intensity={1.5} />
+ * <Shader variant="hurricane" background="var(--bg)" density={0.6} speed={1.2} />
+ */
+export function Shader({ variant, ...rest }: ShaderProps) {
+  if (variant === 'hurricane') {
+    const { animate: _omit, ...hurricaneRest } = rest as ShaderProps
+    return <HurricaneShader {...hurricaneRest} />
+  }
+  const {
+    background: _omit,
+    speed: _omit2,
+    ...gradientRest
+  } = rest as ShaderProps
+  return <GradientShader {...gradientRest} />
+}
+
+// ─────────────────────────────────────────────────────────────
+// Default export — unified Shader (tree-shake via named exports)
+// ─────────────────────────────────────────────────────────────
+export default Shader

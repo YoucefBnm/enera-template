@@ -1,67 +1,193 @@
 'use client'
-import { motion, useScroll, useTransform } from 'motion/react'
-import { SectionIntro } from '../section-intro'
-import { CardsStackContainer, CardSticky } from '../systaliko-ui/cards-stack'
-import React from 'react'
-const PROCESS_PHASES = [
+import { ReactFlow } from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+import { Handle, Position } from '@xyflow/react'
+import {
+  GaugeIcon,
+  SunIcon,
+  LayoutDashboardIcon,
+  BatteryChargingIcon,
+  FactoryIcon,
+  FileBarChart2Icon,
+} from 'lucide-react'
+import { motion } from 'motion/react'
+import { Badge } from '../ui/badge'
+import {
+  ClipText,
+  TextScrollRead,
+  TextScrollReadWrap,
+} from '../systaliko-ui/text-scroll-read'
+
+interface NodeDataT {
+  icon: typeof SunIcon
+  label: string
+  description: string
+}
+const nodeTypes = {
+  card: CardNode,
+}
+
+const nodes = [
   {
-    label: 'Connect',
-    description: 'Plug in meters and devices or link with existing APIs.',
+    id: 'node_source',
+    type: 'card',
+    position: { x: 20, y: 200 },
+    data: {
+      label: 'Energy Source',
+      description: 'Solar grid or hybrid input',
+      icon: SunIcon,
+    },
   },
   {
-    label: 'Monitor',
-    description:
-      'Centralize telemetry and visualize operations in one dashboard.',
+    id: 'node_metering',
+    type: 'card',
+    position: { x: 250, y: 40 },
+    data: {
+      label: 'Metering',
+      description: 'Collects live consumption data',
+      icon: GaugeIcon,
+    },
   },
   {
-    label: 'Optimize',
-    description: 'Use alerts and automation to reduce waste and lower bills.',
+    id: 'node_platform',
+    type: 'card',
+    position: { x: 480, y: 200 },
+    data: {
+      label: 'Platform',
+      description: 'Normalizes and analyzes data',
+      icon: LayoutDashboardIcon,
+    },
+  },
+  {
+    id: 'node_storage',
+    type: 'card',
+    position: { x: 720, y: 40 },
+    data: {
+      label: 'Storage',
+      description: 'Battery or load balancing',
+      icon: BatteryChargingIcon,
+    },
+  },
+  {
+    id: 'node_operations',
+    type: 'card',
+    position: { x: 720, y: 400 },
+    data: {
+      label: 'Operations',
+      description: 'Sites, facilities, equipment',
+      icon: FactoryIcon,
+    },
+  },
+  {
+    id: 'node_reporting',
+    type: 'card',
+    position: { x: 950, y: 200 },
+    data: {
+      label: 'Reporting',
+      description: 'Alerts, dashboards, exports',
+      icon: FileBarChart2Icon,
+    },
   },
 ]
-export function Process() {
-  const ref = React.useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start start', 'end end'],
-  })
+const edges = [
+  {
+    id: 'e1-2',
+    source: 'node_source',
+    target: 'node_metering',
+    animated: true,
+    style: { stroke: 'var(--primary)', strokeWidth: 1 },
+  },
+  {
+    id: 'e1-3',
+    source: 'node_metering',
+    target: 'node_platform',
+    animated: true,
+    style: { stroke: 'var(--primary)', strokeWidth: 1 },
+  },
+  {
+    id: 'e1-4',
+    source: 'node_platform',
+    target: 'node_storage',
+    animated: true,
+    style: { stroke: 'var(--primary)', strokeWidth: 1 },
+  },
+  {
+    id: 'e1-5',
+    source: 'node_platform',
+    target: 'node_operations',
+    animated: true,
+    style: { stroke: 'var(--primary)', strokeWidth: 1 },
+  },
+  {
+    id: 'e1-6',
+    source: 'node_platform',
+    target: 'node_reporting',
+    animated: true,
+    style: { stroke: 'var(--primary)', strokeWidth: 1 },
+  },
+]
 
-  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1])
+function CardNode({ data }: { data: NodeDataT }) {
+  const { label, description, icon } = data
+  const Icon = icon
   return (
-    <section ref={ref} className="px-8 py-16">
-      <div className="flex flex-wrap gap-6">
-        <div className="top-12 h-fit flex-1 space-y-8 md:sticky">
-          <SectionIntro
-            title="our process"
-            subtitle="Simple and efficient, and we're always looking for
-            ways to improve."
-          />
-          <div className="px-12">
-            <div className="bg-primary-foreground dark:bg-muted w-full overflow-hidden">
-              <motion.div
-                className="bg-primary dark:bg-muted-foreground h-0.5 w-full origin-left"
-                style={{ scaleX }}
-              />
-            </div>
-          </div>
-        </div>
-        <CardsStackContainer className="space-y-16 md:flex-1">
-          {PROCESS_PHASES.map((phase, index) => (
-            <CardSticky
-              className="bg-primary/90 odd:bg-accent/90 odd:text-accent-foreground text-primary-foreground flex aspect-2/1 items-center gap-8 rounded p-8 backdrop-blur md:aspect-4/3"
-              key={phase.label}
-              index={index + 2}
-            >
-              <div className="flex-1 text-4xl font-bold tracking-tighter">
-                {String(index + 1).padStart(2, '0')}
-              </div>
+    <div className="group bg-card text-card-foreground relative -z-1 flex max-w-[180px] flex-wrap items-center gap-2 rounded border p-4 shadow-xs lg:max-w-full">
+      <Handle
+        type="target"
+        position={Position.Left}
+        style={{ background: 'var(--primary)' }}
+      />
+      <Badge className="ring-ring/20 shadow-primary absolute -top-2 right-2 text-[10px] shadow-sm ring">
+        {label}
+      </Badge>
+      <div className="grid grid-cols-1 grid-rows-1 items-center *:col-start-1 *:row-start-1">
+        <Icon
+          strokeWidth={1.5}
+          className="text-muted-foreground mx-auto size-5"
+        />
+        <motion.div
+          className="border-primary/50 size-12 rounded-full border"
+          animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0.15, 0.5] }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </div>
 
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold">{phase.label}</h2>
-                <p className="text-balance">{phase.description}</p>
-              </div>
-            </CardSticky>
-          ))}
-        </CardsStackContainer>
+      <p className="text-blance text-muted-foreground flex-1 text-sm">
+        {description}
+      </p>
+      <Handle
+        type="source"
+        position={Position.Right}
+        style={{ background: 'var(--primary)' }}
+      />
+    </div>
+  )
+}
+
+export function Process() {
+  return (
+    <section className="pt-20">
+      <TextScrollRead spaceClass="h-20">
+        <TextScrollReadWrap
+          yRange={[0, 80]}
+          className="mx-auto max-w-xl place-content-center p-8 text-center"
+        >
+          <ClipText className="bg-[linear-gradient(-90deg,var(--muted)_50%,var(--foreground)_50%)] text-3xl leading-normal font-semibold text-balance">
+            Plug in meters and devices or link with existing APIs
+          </ClipText>
+        </TextScrollReadWrap>
+      </TextScrollRead>
+      <div className="mx-auto h-[500px] w-full max-w-7xl border-y border-dashed">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          panOnScroll={false}
+          zoomOnDoubleClick={false}
+          proOptions={{ hideAttribution: true }}
+        />
       </div>
     </section>
   )

@@ -7,8 +7,8 @@ import { Testimonials } from '@/components/sections/testimonials'
 import { Features } from '@/components/sections/features'
 import { Locations } from '@/components/sections/locations'
 import { Cta } from '@/components/sections/cta'
-import { Process } from '@/components/sections/process'
 import ReactLenis from 'lenis/react'
+import { Process } from '@/components/sections/process'
 
 export default function Page() {
   return (
@@ -16,6 +16,7 @@ export default function Page() {
       <Header />
       <Hero />
       <Services />
+      <Process />
       {/* <Features />
 
       <Process />

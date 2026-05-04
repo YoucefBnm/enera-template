@@ -18,12 +18,12 @@ import { Variants } from 'motion'
 
 const menuListVariants = {
   open: {
-    width: 181,
+    width: 220,
     height: 280,
     transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] },
   },
   close: {
-    width: '100%',
+    width: 100,
     height: 32,
     transition: { duration: 0.75, delay: 0.2, ease: [0.76, 0, 0.24, 1] },
   },
@@ -42,36 +42,28 @@ function HeaderLogo() {
 function HeaderMenu() {
   return (
     <AnimatedMenu>
-      <AnimatedMenuButton>
-        <AnimatedMenuButtonLabel />
-        <AnimatedMenuButtonToggleIcon />
+      <AnimatedMenuButton className="h-[32px] w-[100px]">
+        <AnimatedMenuButtonLabel className="px-2" />
+        <AnimatedMenuButtonToggleIcon className="flex-1 self-stretch border-l" />
       </AnimatedMenuButton>
 
       <AnimatedMenuList
         variants={menuListVariants}
-        className="bg-accent text-popover-foreground border shadow-xs"
+        className="bg-popover/80 text-popover-foreground border shadow-xs backdrop-blur"
       >
-        <div className="flex size-full flex-col place-content-center items-start justify-evenly gap-4 p-8">
-          <div className="flex flex-col gap-5">
-            <AnimatedMenuItem>
-              <Link className="hover:text-primary-foreground" href="#">
-                About
-              </Link>
+        <div className="size-full place-content-center">
+          <div className="flex flex-col">
+            <AnimatedMenuItem className="border-b px-8 py-2">
+              <Link href="#">About</Link>
             </AnimatedMenuItem>
-            <AnimatedMenuItem order={1}>
-              <Link className="hover:text-primary-foreground" href="#">
-                Services
-              </Link>
+            <AnimatedMenuItem className="border-b px-8 py-2" order={1}>
+              <Link href="#">Services</Link>
             </AnimatedMenuItem>
-            <AnimatedMenuItem order={2}>
-              <Link className="hover:text-primary-foreground" href="#">
-                Case Studies
-              </Link>
+            <AnimatedMenuItem className="border-b px-8 py-2" order={2}>
+              <Link href="#">Case Studies</Link>
             </AnimatedMenuItem>
-            <AnimatedMenuItem order={3}>
-              <Link className="hover:text-primary-foreground" href="#">
-                Partners
-              </Link>
+            <AnimatedMenuItem className="border-b px-8 py-2" order={3}>
+              <Link href="#">Partners</Link>
             </AnimatedMenuItem>
           </div>
         </div>
@@ -82,7 +74,7 @@ function HeaderMenu() {
 export function Header() {
   const isMobile = useIsMobile()
   return (
-    <header className="fixed top-0 left-0 z-999 flex h-16 w-full items-center justify-between px-12">
+    <header className="bg-sidebar fixed top-0 left-0 z-999 flex h-16 w-full items-center justify-between px-12">
       <HeaderLogo />
       <div className="flex items-center gap-1">
         <Button size="sm" className={'relative z-999'}>
