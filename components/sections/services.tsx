@@ -5,7 +5,7 @@ import {
   TextScrollReadWrap,
 } from '../systaliko-ui/text-scroll-read'
 import { Button } from '../ui/button'
-import { SERVICES } from '@/constants'
+import { SERVICES } from '@/data'
 
 export function Services() {
   return (

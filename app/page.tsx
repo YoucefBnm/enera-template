@@ -17,6 +17,7 @@ export default function Page() {
       <Hero />
       <Services />
       <Process />
+      <Cta />
       {/* <Features />
 
       <Process />

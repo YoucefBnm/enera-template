@@ -4,7 +4,7 @@ import { ANIMATION_VARIANTS } from '../systaliko-ui/animation-variants'
 import { Button } from '../ui/button'
 import { ArrowRightIcon } from 'lucide-react'
 import { Suspense, lazy } from 'react'
-import { GodRays } from '@paper-design/shaders-react'
+import { hero_text, SHADER_COLORS } from '@/data'
 
 const HurricaneShader = lazy(() =>
   import('../shader').then((mod) => ({ default: mod.HurricaneShader }))
@@ -25,15 +25,14 @@ function HeroText() {
           variants={animationVariants}
           className="max-w-[25ch] text-4xl font-medium tracking-tight text-balance md:text-5xl xl:text-6xl"
         >
-          Manage energy smarter Save cost reduce carbon
+          {hero_text.heading}
         </motion.h1>
 
         <motion.p
           variants={animationVariants}
-          className="text-muted-foreground max-w-[65ch] text-balance"
+          className="text-muted-foreground max-w-[45ch] text-balance"
         >
-          Real-time monitoring, scalable integrations, and actionable insights
-          for utilities and businesses.
+          {hero_text.paragrph}
         </motion.p>
 
         <motion.div
@@ -57,7 +56,7 @@ export function Hero() {
       <Suspense fallback={<div className="bg-background size-full" />}>
         <HurricaneShader
           background="#fdfdfd"
-          colors={['#63af87', '#805cd6', '#d38955']}
+          colors={SHADER_COLORS}
           speed={0.2}
         />
       </Suspense>

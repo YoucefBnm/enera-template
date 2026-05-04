@@ -1,11 +1,7 @@
 'use client'
-import { useIsMobile } from '@/lib/use-is-mobile'
-import { MobileHeader } from '../mobile-header'
-import { DesktopHeader } from '../desktop-header'
 import Link from 'next/link'
 import { Logo } from '../logo'
 import { Button } from '../ui/button'
-import { ArrowRightIcon } from 'lucide-react'
 import {
   AnimatedMenu,
   AnimatedMenuButton,
@@ -15,6 +11,7 @@ import {
   AnimatedMenuList,
 } from '../systaliko-ui/animated-menu'
 import { Variants } from 'motion'
+import { site_links } from '@/data'
 
 const menuListVariants = {
   open: {
@@ -53,18 +50,11 @@ function HeaderMenu() {
       >
         <div className="size-full place-content-center">
           <div className="flex flex-col">
-            <AnimatedMenuItem className="border-b px-8 py-2">
-              <Link href="#">About</Link>
-            </AnimatedMenuItem>
-            <AnimatedMenuItem className="border-b px-8 py-2" order={1}>
-              <Link href="#">Services</Link>
-            </AnimatedMenuItem>
-            <AnimatedMenuItem className="border-b px-8 py-2" order={2}>
-              <Link href="#">Case Studies</Link>
-            </AnimatedMenuItem>
-            <AnimatedMenuItem className="border-b px-8 py-2" order={3}>
-              <Link href="#">Partners</Link>
-            </AnimatedMenuItem>
+            {site_links.map((link) => (
+              <AnimatedMenuItem className="border-b px-8 py-2" key={link.id}>
+                <Link href={link.href}>{link.label}</Link>
+              </AnimatedMenuItem>
+            ))}
           </div>
         </div>
       </AnimatedMenuList>
@@ -72,7 +62,6 @@ function HeaderMenu() {
   )
 }
 export function Header() {
-  const isMobile = useIsMobile()
   return (
     <header className="bg-sidebar fixed top-0 left-0 z-999 flex h-16 w-full items-center justify-between px-12">
       <HeaderLogo />
