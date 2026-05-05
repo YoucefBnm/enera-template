@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { ArrowRightIcon } from 'lucide-react'
 import { Suspense, lazy } from 'react'
 import { hero_text, SHADER_COLORS } from '@/data'
+import { TextStaggerInterval } from '../systaliko-ui/text-stagger-interval'
 
 const HurricaneShader = lazy(() =>
   import('../shader').then((mod) => ({ default: mod.HurricaneShader }))
@@ -16,16 +17,24 @@ function HeroText() {
   return (
     <motion.div
       transition={{ delayChildren: stagger(0.3), delay: 0.1 }}
-      className="relative z-5 flex flex-col items-center justify-center space-y-4 text-center"
       initial="hidden"
       animate="visible"
+      className="space-y-4"
     >
       <MotionConfig transition={{ duration: 0.5, ease: 'easeInOut' }}>
         <motion.h1
           variants={animationVariants}
-          className="max-w-[25ch] text-4xl font-medium tracking-tight text-balance md:text-5xl xl:text-6xl"
+          className="max-w-[18ch] text-5xl font-semibold tracking-tight text-balance md:text-6xl xl:text-7xl"
         >
-          {hero_text.heading}
+          Manage energy smarter{' '}
+          <TextStaggerInterval
+            words={['save', 'optimize', 'reduce']}
+            interval={2500}
+            staggerValue={0.03}
+            animation="blur"
+            className="text-primary inline-block min-w-[186px] font-serif font-normal tracking-normal italic"
+          />{' '}
+          cost reduce carbon
         </motion.h1>
 
         <motion.p
@@ -51,15 +60,18 @@ function HeroText() {
 
 export function Hero() {
   return (
-    <div className="grid h-screen grid-cols-1 grid-rows-1 place-content-center overflow-hidden *:col-start-1 *:row-start-1">
+    <section
+      id="hero"
+      className="grid min-h-screen grid-rows-[max-content_max-content] items-center px-8 py-12 lg:grid-cols-2"
+    >
       <HeroText />
       <Suspense fallback={<div className="bg-background size-full" />}>
         <HurricaneShader
+          className="h-[500px]"
           background="#fdfdfd"
           colors={SHADER_COLORS}
-          speed={0.2}
         />
       </Suspense>
-    </div>
+    </section>
   )
 }

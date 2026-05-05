@@ -1,7 +1,11 @@
 'use client'
+
+import { Logo } from '@/components/logo'
+import { site_links } from '@/data'
 import Link from 'next/link'
-import { Logo } from '../logo'
 import { Button } from '../ui/button'
+import { useIsScrolled } from '@/lib/use-is-scrolled'
+import clsx from 'clsx'
 import {
   AnimatedMenu,
   AnimatedMenuButton,
@@ -10,9 +14,9 @@ import {
   AnimatedMenuItem,
   AnimatedMenuList,
 } from '../systaliko-ui/animated-menu'
-import { Variants } from 'motion'
-import { site_links } from '@/data'
 
+const link_style =
+  'text-muted-foreground/70 p-2 text-sm font-medium duration-150 ease-out transition-colors hover:text-muted-foreground hover:bg-muted rounded'
 const menuListVariants = {
   open: {
     width: 220,
@@ -20,57 +24,81 @@ const menuListVariants = {
     transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] },
   },
   close: {
-    width: 100,
+    width: 80,
     height: 32,
     transition: { duration: 0.75, delay: 0.2, ease: [0.76, 0, 0.24, 1] },
   },
-} as Variants
+} as const
 function HeaderLogo() {
   return (
-    <Link
-      aria-label="home page"
-      className="flex items-center justify-center"
-      href="/"
-    >
-      <Logo className="w-20" />
+    <Link href="/" className="flex items-center gap-1 p-1">
+      <Logo className="text-primary w-6" />
+      <span className="text-xl font-semibold">Enera</span>
     </Link>
   )
 }
-function HeaderMenu() {
-  return (
-    <AnimatedMenu>
-      <AnimatedMenuButton className="h-[32px] w-[100px]">
-        <AnimatedMenuButtonLabel className="px-2" />
-        <AnimatedMenuButtonToggleIcon className="flex-1 self-stretch border-l" />
-      </AnimatedMenuButton>
 
+function NavDesktop() {
+  return (
+    <nav className="hidden items-center gap-1 md:flex">
+      {site_links.map((link) => (
+        <Link key={link.id} href={link.href} className={link_style}>
+          {link.label}
+        </Link>
+      ))}
+    </nav>
+  )
+}
+
+function NavMobile() {
+  return (
+    <AnimatedMenu className="md:hidden">
+      <AnimatedMenuButton>
+        <AnimatedMenuButtonToggleIcon className="*:rounded" />
+        <AnimatedMenuButtonLabel />
+      </AnimatedMenuButton>
       <AnimatedMenuList
         variants={menuListVariants}
-        className="bg-popover/80 text-popover-foreground border shadow-xs backdrop-blur"
+        className="bg-popover/95 text-popover-foreground border-muted/50 place-content-center border-2 shadow-lg backdrop-blur"
       >
-        <div className="size-full place-content-center">
-          <div className="flex flex-col">
-            {site_links.map((link) => (
-              <AnimatedMenuItem className="border-b px-8 py-2" key={link.id}>
-                <Link href={link.href}>{link.label}</Link>
-              </AnimatedMenuItem>
-            ))}
-          </div>
+        <div className="flex flex-col gap-4 p-8">
+          {site_links.map((item, i) => (
+            <AnimatedMenuItem key={item.id} order={i}>
+              <Link className={link_style} href={item.href} title={item.label}>
+                {item.label}
+              </Link>
+            </AnimatedMenuItem>
+          ))}
         </div>
       </AnimatedMenuList>
     </AnimatedMenu>
   )
 }
+
 export function Header() {
+  const { isScrolled, sentinelRef } = useIsScrolled()
+
   return (
-    <header className="bg-sidebar fixed top-0 left-0 z-999 flex h-16 w-full items-center justify-between px-12">
-      <HeaderLogo />
-      <div className="flex items-center gap-1">
-        <Button size="sm" className={'relative z-999'}>
-          Contact
-        </Button>
-        <HeaderMenu />
-      </div>
-    </header>
+    <>
+      <div
+        ref={sentinelRef}
+        className="absolute top-0 h-px w-full bg-transparent"
+      />
+      <header
+        className={clsx(
+          'sticky top-2 z-999 mx-auto flex items-center justify-between gap-4 rounded-3xl px-4 py-2 backdrop-blur',
+          'transition-[background_border-color_shadow_width] duration-300 ease-in-out',
+          isScrolled
+            ? 'bg-sidebar/70 w-4/5 border shadow'
+            : 'bg-background right-0 left-0 w-5/5'
+        )}
+      >
+        <HeaderLogo />
+
+        <NavDesktop />
+        <NavMobile />
+        <Button variant="outline">Contact us</Button>
+      </header>
+    </>
   )
 }

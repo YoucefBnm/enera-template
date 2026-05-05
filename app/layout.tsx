@@ -1,10 +1,8 @@
 import type { Metadata } from 'next'
-import { Geist_Mono, Outfit, Inter } from 'next/font/google'
+import { Geist_Mono, Inter, Merriweather } from 'next/font/google'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/next'
 import { cn } from '@/lib/utils'
-
-const outfitHeading = Outfit({ subsets: ['latin'], variable: '--font-heading' })
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -13,6 +11,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+const merriweather = Merriweather({
+  subsets: ['latin'],
+  variable: '--font-heading',
+})
 export const metadata: Metadata = {
   title: 'Enera Corporate',
   description: 'Systaliko UI template for corporate website',
@@ -26,7 +28,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn('font-sans', inter.variable, outfitHeading.variable)}
+      className={cn(
+        'font-sans',
+        inter.variable,
+        merriweather.variable,
+        geistMono.variable
+      )}
     >
       <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
         {children}

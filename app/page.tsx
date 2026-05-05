@@ -16,16 +16,10 @@ export default function Page() {
       <Header />
       <Hero />
       <Services />
-      <Process />
-      <Cta />
-      {/* <Features />
-
-      <Process />
-      <Cta />
       <Locations />
-      <Testimonials /> */}
-      {/* <Faq /> */}
-      {/* <Footer /> */}
+      <Process />
+      <Cta />
+      <Footer />
     </ReactLenis>
   )
 }

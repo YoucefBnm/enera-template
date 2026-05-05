@@ -10,7 +10,7 @@ const animation_variants = ANIMATION_VARIANTS['blur']
 const MotionButton = motion.create(Button)
 export function Cta() {
   return (
-    <section className="my-16 flex justify-center">
+    <section id="cta" className="my-16 flex justify-center">
       <div className="mx-8 grid aspect-video max-w-3xl grid-cols-1 grid-rows-1 place-content-center overflow-hidden rounded-3xl border *:col-start-1 *:row-start-1">
         <Suspense fallback={<div className="size-full bg-zinc-900" />}>
           <GradientShader

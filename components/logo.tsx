@@ -1,17 +1,89 @@
 export const Logo = ({ ...props }: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg
-      viewBox="0 0 84 22"
-      fill="currentColor"
+      viewBox="0 0 18 18"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Enera Logo"
       {...props}
     >
-      <path d="M67.5986 21.8201H63.3799L71.061 0.00195312H75.9403L83.632 21.8201H79.4133L73.5859 4.47639H73.4154L67.5986 21.8201ZM71.8516 13.2654H74.8516V16.4402H71.8516V13.2654Z" />
-      <path d="M47.8799 21.8201V0.00195312H56.0617C57.7378 0.00195312 59.1441 0.293146 60.2804 0.875533C61.4239 1.45792 62.2868 2.27468 62.8692 3.32582C63.4587 4.36985 63.7535 5.58789 63.7535 6.97994C63.7535 8.37908 63.4552 9.59357 62.8586 10.6234C62.2691 11.6461 61.3991 12.438 60.2485 12.9991C59.0979 13.5531 57.6846 13.8301 56.0084 13.8301H50.181V10.5488H55.4758C56.4559 10.5488 57.2584 10.4139 57.8834 10.144C58.5084 9.86701 58.9701 9.46573 59.2684 8.94016C59.5738 8.40749 59.7265 7.75408 59.7265 6.97994C59.7265 6.20579 59.5738 5.54528 59.2684 4.9984C58.963 4.44443 58.4978 4.02539 57.8728 3.7413C57.2478 3.45011 56.4417 3.30451 55.4545 3.30451H51.8323V21.8201H47.8799ZM59.1512 11.9338L62.8692 18.9047L58.4092 18.8188L54.8366 11.9338H59.1512Z" />
-      <path d="M30.5537 6.95863V21.8201H27.0381L16.7575 6.95863H16.5764V16.3203H12.624V0.00195312H16.161L26.4308 14.8741H26.6226V6.95863H30.5537Z" />
-      <path d="M0.952415 21.8201L0.952148 0.00195312H11.1901V3.31516H0.952148V9.23846H5.84739V12.5517H0.952148V18.5069H7.84739V21.8201H0.952415Z" />
-      <path d="M36.2122 21.8182L36.2119 0H46.4498V3.31321H36.2119V9.23651H41.1072V12.5497H36.2119V18.505H43.1072V21.8182H36.2122Z" />
+      <g clipPath="url(#clip0_2002_895)">
+        <path
+          d="M9 13.5C11.4853 13.5 13.5 11.4853 13.5 9C13.5 6.51472 11.4853 4.5 9 4.5C6.51472 4.5 4.5 6.51472 4.5 9C4.5 11.4853 6.51472 13.5 9 13.5Z"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 1.125V3.375"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 14.625V16.875"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M3.29639 3.29639L4.88264 4.88264"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M13.1177 13.1177L14.7039 14.7039"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M1.125 9H3.375"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14.625 9H16.875"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M4.88264 13.1177L3.29639 14.7039"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14.7039 3.29639L13.1177 4.88264"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 10.125C9.62132 10.125 10.125 9.62132 10.125 9C10.125 8.37868 9.62132 7.875 9 7.875C8.37868 7.875 7.875 8.37868 7.875 9C7.875 9.62132 8.37868 10.125 9 10.125Z"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_2002_895">
+          <rect width="18" height="18" fill="white" />
+        </clipPath>
+      </defs>
     </svg>
   )
 }

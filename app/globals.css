@@ -35,8 +35,8 @@
   --sidebar-accent-foreground: oklch(0 0 0);
   --sidebar-border: oklch(0.9401 0 0);
   --sidebar-ring: oklch(0 0 0);
-  --font-sans: Outfit, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Merriweather', serif;
   --font-mono: monospace;
 
   --radius: 1.4rem;
@@ -101,8 +101,8 @@
   --sidebar-accent-foreground: oklch(0.6568 0.1425 295.5098);
   --sidebar-border: oklch(0.3321 0.006 258.3511);
   --sidebar-ring: oklch(0.6568 0.1425 295.5098);
-  --font-sans: Outfit, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Merriweather', serif;
   --font-mono: monospace;
 
   --radius: 1.4rem;

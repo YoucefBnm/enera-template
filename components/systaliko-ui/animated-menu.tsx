@@ -81,11 +81,11 @@ export function AnimatedMenu({
   )
 }
 const buttonIconVariants = cva(
-  'flex flex-col gap-1.5 justify-center items-center p-1 relative *:bg-current',
+  'flex flex-col gap-1 justify-center items-center p-1 relative *:bg-current',
   {
     variants: {
       size: {
-        sm: '*:w-4 *:h-[1.5px] *:origin-[17%]',
+        sm: '*:w-3 *:h-[1.5px] *:origin-[20%]',
         md: '*:w-6 *:h-0.5  *:origin-[25%]',
         lg: '*:w-8 *:h-0.5  *:origin-[33%]',
         xl: '*:w-10 *:h-1 *:origin-[31%]',

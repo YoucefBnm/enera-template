@@ -546,7 +546,7 @@ export function HurricaneShader({
   background = DEFAULT_BACKGROUND,
   intensity = 1,
   density = 1,
-  speed = 1,
+  speed = 0.2,
   className,
 }: HurricaneShaderProps & { speed?: number }) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
