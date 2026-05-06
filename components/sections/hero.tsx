@@ -24,7 +24,7 @@ function HeroText() {
       <MotionConfig transition={{ duration: 0.5, ease: 'easeInOut' }}>
         <motion.h1
           variants={animationVariants}
-          className="max-w-[18ch] text-5xl font-semibold tracking-tight text-balance md:text-6xl xl:text-7xl"
+          className="max-w-[18ch] text-4xl font-semibold tracking-tight text-balance md:text-5xl xl:text-6xl"
         >
           Manage energy smarter{' '}
           <TextStaggerInterval

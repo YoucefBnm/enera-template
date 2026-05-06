@@ -1,12 +1,10 @@
 import { Header } from '@/components/sections/header'
 import { Hero } from '@/components/sections/hero'
-import { Services } from '@/components/sections/services'
+import { Products } from '@/components/sections/products'
 import { Footer } from '@/components/sections/footer'
 
-import { Testimonials } from '@/components/sections/testimonials'
-import { Features } from '@/components/sections/features'
+import { Benefits } from '@/components/sections/benefits'
 import { Locations } from '@/components/sections/locations'
-import { Cta } from '@/components/sections/cta'
 import ReactLenis from 'lenis/react'
 import { Process } from '@/components/sections/process'
 
@@ -15,9 +13,9 @@ export default function Page() {
     <ReactLenis root>
       <Header />
       <Hero />
-      <Services />
+      <Products />
       <Locations />
-      <Features />
+      <Benefits />
       <Process />
       <Footer />
     </ReactLenis>

@@ -12,7 +12,7 @@ export function Cta() {
   return (
     <section
       id="cta"
-      className="bg-background relative z-2 flex justify-center border-b py-16 shadow"
+      className="bg-background relative z-2 flex justify-center border-b py-16 shadow-xl"
     >
       <div className="mx-8 grid aspect-video max-w-3xl grid-cols-1 grid-rows-1 place-content-center overflow-hidden rounded-3xl border *:col-start-1 *:row-start-1">
         <Suspense fallback={<div className="size-full bg-zinc-900" />}>
@@ -25,12 +25,12 @@ export function Cta() {
         </Suspense>
         <motion.div
           transition={{ delayChildren: stagger(0.3), delay: 0.1 }}
-          className="place-content-center space-y-6 text-center text-white"
+          className="place-content-center space-y-6 p-8 text-center text-white"
         >
           <MotionConfig transition={{ duration: 0.5, ease: 'easeOut' }}>
             <motion.h2
               variants={animation_variants}
-              className="text-4xl font-semibold text-balance"
+              className="text-3xl font-semibold text-balance"
             >
               Meet sustainability targets with generation monitoring
             </motion.h2>

@@ -5,13 +5,13 @@ import {
   TextScrollReadWrap,
 } from '../systaliko-ui/text-scroll-read'
 import { Button } from '../ui/button'
-import { gradient_style, SERVICES } from '@/data'
+import { gradient_style, PRODUCTS } from '@/data'
 
 const card_style =
   'group bg-secondary text-secondary-foreground space-y-6 rounded border p-8'
-export function Services() {
+export function Products() {
   return (
-    <section className="flex justify-center" id="sevices">
+    <section className="flex justify-center" id="products">
       <div className="bg-card mx-8 max-w-6xl rounded-3xl border p-8 shadow-xs">
         <div className="flex flex-wrap items-end justify-between gap-8">
           <TextScrollRead className="max-w-xl" spaceClass="h-10">
@@ -35,7 +35,7 @@ export function Services() {
           </div>
         </div>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(min(18rem,100%),1fr))] gap-4 p-8">
-          {SERVICES.map(({ title, Icon, description }) => (
+          {PRODUCTS.map(({ title, Icon, description }) => (
             <div className={card_style} key={title}>
               <Icon />
 

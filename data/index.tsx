@@ -16,20 +16,20 @@ import {
 } from 'lucide-react'
 
 export const SHADER_COLORS: [string, string, string] = [
-  '#63af87',
-  '#805cd6',
-  '#d38955',
+  '#1424FF',
+  '#b2e6ff',
+  '#1daddd',
 ]
 export const gradient_style = {
   background: 'var(--primary)',
   backgroundImage:
-    'radial-gradient(85% 70% at 90% 70%, #A68DE2 0%, #9A7CDE 22.92%, #8D6CDA 42.71%, var(--primary) 88.54%)',
+    'radial-gradient(85% 70% at 90% 70%, #5C67FF 0%, #4754FF 22.92%, #3341FF 42.71%, var(--primary) 88.54%)',
 } as const
 export const link_style =
   'text-muted-foreground/70 p-2 text-sm font-medium duration-150 ease-out transition-colors hover:text-muted-foreground hover:bg-muted rounded'
 
 const iconStyle =
-  '*:opacity-70 size-8 text-primary stroke-[1.5] *:transition-[transform_opacity] *:duration-200 *:ease-out'
+  '*:opacity-70 size-8 stroke-[1.2] *:transition-[transform_opacity] *:duration-200 *:ease-out'
 
 export const hero_text = {
   heading: 'Manage energy smarter Save cost reduce carbon',
@@ -37,7 +37,7 @@ export const hero_text = {
     'Real time monitoring, scalable integrations, and actionable insights for utilities and businesses.',
 }
 
-export const SERVICES = [
+export const PRODUCTS = [
   {
     Icon: () => (
       <HousePlugIcon
@@ -222,5 +222,32 @@ export const nodes_edges = [
     target: 'node_reporting',
     animated: true,
     style: { stroke: 'var(--primary)', strokeWidth: 1 },
+  },
+]
+
+export const FEATURES = [
+  {
+    label: 'Device Integration',
+    desc: 'Connect your devices to the platform and start monitoring their performance.',
+    iconStyle:
+      '[&_g_path:nth-child(2)]:opacity-100 [&_g_path:nth-child(4)]:opacity-100',
+  },
+  {
+    label: 'Actionable Analytics',
+    desc: 'Gain insights into your energy consumption and identify areas for improvement.',
+    iconStyle:
+      '[&_g_path:nth-child(2)]:opacity-100 [&_g_path:nth-child(4)]:opacity-100 [&_g_path:nth-child(6)]:opacity-100  [&_g_path:nth-child(8)]:opacity-100',
+  },
+  {
+    label: 'Entreprise Grade',
+    desc: 'Role based access control, encrypted data flows, and audit ready controls designed for regulated environements.',
+    iconStyle:
+      '[&_g_path:nth-child(2)]:opacity-100 [&_g_path:nth-child(3)]:opacity-100 [&_g_path:nth-child(5)]:opacity-100 [&_g_path:nth-child(4)]:opacity-100 [&_g_path:nth-child(6)]:opacity-100  [&_g_path:nth-child(8)]:opacity-100',
+  },
+  {
+    label: 'Scalable Architecture',
+    desc: 'Deploy from a single site to large multi-region infrastructures without performance or reliability trade-offs.',
+    iconStyle:
+      '[&_g_path:nth-child(2)]:opacity-100 [&_g_path:nth-child(7)]:opacity-100 [&_g_path:nth-child(9)]:opacity-100 [&_g_path:nth-child(3)]:opacity-100 [&_g_path:nth-child(5)]:opacity-100 [&_g_path:nth-child(4)]:opacity-100 [&_g_path:nth-child(6)]:opacity-100  [&_g_path:nth-child(8)]:opacity-100',
   },
 ]

@@ -84,10 +84,10 @@ export function Header() {
       />
       <header
         className={clsx(
-          'sticky top-2 z-999 mx-auto flex items-center justify-between gap-4 rounded-3xl p-2 backdrop-blur',
+          'sticky top-2 z-999 mx-auto flex items-center justify-between gap-4 rounded-full p-1.5 backdrop-blur',
           'transition-[background_border-color_shadow_width] duration-300 ease-in-out',
           isScrolled
-            ? 'bg-sidebar/70 w-4/5 border shadow-xs'
+            ? 'bg-sidebar/80 w-4/5 border shadow-xs'
             : 'bg-background right-0 left-0 w-11/12'
         )}
       >

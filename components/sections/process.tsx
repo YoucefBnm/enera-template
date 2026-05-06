@@ -20,13 +20,13 @@ function CardNode({ data }: { data: NodeDataT }) {
   const { label, description, icon } = data
   const Icon = icon
   return (
-    <div className="group bg-card text-card-foreground relative -z-1 flex max-w-[180px] flex-wrap items-center gap-2 rounded border p-4 shadow-xs lg:max-w-full">
+    <div className="group bg-card text-card-foreground relative -z-1 flex max-w-[180px] flex-wrap items-center gap-2 rounded-full border p-4 shadow-xs lg:max-w-full">
       <Handle
         type="target"
         position={Position.Left}
         style={{ background: 'var(--primary)' }}
       />
-      <Badge className="ring-ring/20 shadow-primary absolute -top-2 right-2 text-[10px] shadow-sm ring">
+      <Badge className="ring-ring/20 shadow-primary bg-primary/80 absolute -top-2 right-8 text-[10px] shadow-sm ring">
         {label}
       </Badge>
       <div className="grid grid-cols-1 grid-rows-1 items-center *:col-start-1 *:row-start-1">
@@ -55,7 +55,7 @@ function CardNode({ data }: { data: NodeDataT }) {
 
 export function Process() {
   return (
-    <section className="pt-20">
+    <section className="bg-secondary pt-20">
       <TextScrollRead spaceClass="h-20">
         <TextScrollReadWrap
           yRange={[0, 80]}
@@ -66,7 +66,7 @@ export function Process() {
           </ClipText>
         </TextScrollReadWrap>
       </TextScrollRead>
-      <div className="mx-auto h-[500px] w-full max-w-7xl border-y border-dashed">
+      <div className="border-y-dashed mx-auto h-[500px] w-full max-w-7xl border-y">
         <ReactFlow
           nodes={process_nodes}
           edges={nodes_edges}
