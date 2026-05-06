@@ -34,7 +34,7 @@ function HeroText() {
             animation="blur"
             className="text-primary inline-block min-w-[186px] font-serif font-normal tracking-normal italic"
           />{' '}
-          cost reduce carbon
+          <div>cost reduce carbon</div>
         </motion.h1>
 
         <motion.p
