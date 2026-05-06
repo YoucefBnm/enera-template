@@ -1,14 +1,14 @@
-'use client';
-import { cn } from '@/lib/utils';
-import { cva, VariantProps } from 'class-variance-authority';
+'use client'
+import { cn } from '@/lib/utils'
+import { cva, VariantProps } from 'class-variance-authority'
 import {
   AnimatePresence,
   HTMLMotionProps,
   motion,
   MotionConfig,
   Variants,
-} from 'motion/react';
-import React from 'react';
+} from 'motion/react'
+import React from 'react'
 
 const menuListVariants = {
   open: {
@@ -17,11 +17,11 @@ const menuListVariants = {
     transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] },
   },
   close: {
-    width: 102,
-    height: 40,
+    width: 80,
+    height: 32,
     transition: { duration: 0.75, delay: 0.2, ease: [0.76, 0, 0.24, 1] },
   },
-} as Variants;
+} as Variants
 
 const itemVariants = {
   initial: {
@@ -40,52 +40,52 @@ const itemVariants = {
       delay: 0.25 + -i * 0.1,
     },
   }),
-} as Variants;
+} as Variants
 interface AnimatedMenuContextValue {
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 interface AnimatedMenuListProps extends HTMLMotionProps<'div'> {
-  menuListVariants?: Variants;
+  menuListVariants?: Variants
 }
 interface AnimatedMenuItemProps extends HTMLMotionProps<'div'> {
-  order?: number;
-  variants?: Variants;
+  order?: number
+  variants?: Variants
 }
-interface AnimatedMenuButtonLabelProps
-  extends React.HTMLAttributes<HTMLDivElement> {
-  closeLabel?: string;
-  openLabel?: string;
+interface AnimatedMenuButtonLabelProps extends React.HTMLAttributes<HTMLDivElement> {
+  closeLabel?: string
+  openLabel?: string
 }
 const AnimatedMenuContext = React.createContext<
   AnimatedMenuContextValue | undefined
->(undefined);
+>(undefined)
 function useAnimatedMenuContext() {
-  const context = React.useContext(AnimatedMenuContext);
+  const context = React.useContext(AnimatedMenuContext)
   if (context === undefined) {
     throw new Error(
-      'useAnimatedMenuContext must be used within an AnimatedMenuProvider',
-    );
+      'useAnimatedMenuContext must be used within an AnimatedMenuProvider'
+    )
   }
-  return context;
+  return context
 }
 export function AnimatedMenu({
+  className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
+}: React.ComponentProps<'div'>) {
+  const [isOpen, setIsOpen] = React.useState<boolean>(false)
 
   return (
     <AnimatedMenuContext.Provider value={{ isOpen, setIsOpen }}>
-      <div {...props} />
+      <div className={cn('relative', className)} {...props} />
     </AnimatedMenuContext.Provider>
-  );
+  )
 }
 const buttonIconVariants = cva(
-  'flex flex-col gap-1.5 justify-center items-center p-1 relative *:bg-current',
+  'flex flex-col gap-1 justify-center items-center p-1 relative *:bg-current',
   {
     variants: {
       size: {
-        sm: '*:w-4 *:h-px *:w-4 *:h-px *:origin-[20%]',
+        sm: '*:w-3 *:h-[1.5px] *:origin-[20%]',
         md: '*:w-6 *:h-0.5  *:origin-[25%]',
         lg: '*:w-8 *:h-0.5  *:origin-[33%]',
         xl: '*:w-10 *:h-1 *:origin-[31%]',
@@ -94,29 +94,29 @@ const buttonIconVariants = cva(
     defaultVariants: {
       size: 'sm',
     },
-  },
-);
+  }
+)
 export function AnimatedMenuButtonToggleIcon({
   className,
   size = 'sm',
   ...props
 }: React.HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof buttonIconVariants>) {
-  const { isOpen } = useAnimatedMenuContext();
+  const { isOpen } = useAnimatedMenuContext()
   return (
     <div
       className={cn(
         buttonIconVariants({
           size,
           className,
-        }),
+        })
       )}
       {...props}
     >
       <motion.span animate={isOpen ? { rotate: 45 } : { rotate: 0 }} />
       <motion.span animate={isOpen ? { rotate: -45 } : { rotate: 0 }} />
     </div>
-  );
+  )
 }
 export function AnimatedMenuButtonLabel({
   closeLabel = 'Menu',
@@ -124,19 +124,19 @@ export function AnimatedMenuButtonLabel({
   className,
   ...props
 }: AnimatedMenuButtonLabelProps) {
-  const { isOpen } = useAnimatedMenuContext();
+  const { isOpen } = useAnimatedMenuContext()
   return (
     <div
       className={cn(
-        'overflow-hidden shrink-0 inline-grid grid-rows-1 grid-cols-1',
-        className,
+        'inline-grid shrink-0 grid-cols-1 grid-rows-1 overflow-hidden text-sm font-medium',
+        className
       )}
       {...props}
     >
       <AnimatePresence>
         <motion.span
           key={closeLabel}
-          className="will-change-transform col-start-1 row-start-1"
+          className="col-start-1 row-start-1 will-change-transform"
           initial={{ y: '0%' }}
           animate={isOpen ? { y: '-100%' } : { y: '0%' }}
           exit={{ y: '-100%' }}
@@ -145,7 +145,7 @@ export function AnimatedMenuButtonLabel({
         </motion.span>
         <motion.span
           key={openLabel}
-          className="will-change-transform col-start-1 row-start-1"
+          className="col-start-1 row-start-1 will-change-transform"
           initial={{ y: '100%' }}
           animate={isOpen ? { y: '0%' } : { y: '100%' }}
           exit={{ y: '100%' }}
@@ -154,7 +154,7 @@ export function AnimatedMenuButtonLabel({
         </motion.span>
       </AnimatePresence>
     </div>
-  );
+  )
 }
 
 export function AnimatedMenuButton({
@@ -162,14 +162,15 @@ export function AnimatedMenuButton({
   children,
   ...props
 }: React.HTMLAttributes<HTMLButtonElement>) {
-  const { setIsOpen } = useAnimatedMenuContext();
-  const toggleMenu = () => setIsOpen((prevState) => !prevState);
+  const { setIsOpen } = useAnimatedMenuContext()
+  const toggleMenu = () => setIsOpen((prevState) => !prevState)
   return (
     <button
       className={cn(
-        'appearance-none relative z-[999] bg-none inline-flex gap-0.5 justify-center items-center',
-        '[&:hover>*]:scale-90 *:transition-transform *:duration-300',
-        className,
+        'h-8 w-20',
+        'text-popover-foreground relative z-[999] flex cursor-pointer appearance-none items-center justify-center gap-0.5 bg-none',
+        '*:transition-transform *:duration-300 [&:hover>*]:scale-90',
+        className
       )}
       onClick={toggleMenu}
       {...props}
@@ -180,7 +181,7 @@ export function AnimatedMenuButton({
         {children}
       </MotionConfig>
     </button>
-  );
+  )
 }
 
 export function AnimatedMenuList({
@@ -189,10 +190,13 @@ export function AnimatedMenuList({
   children,
   ...props
 }: AnimatedMenuListProps) {
-  const { isOpen } = useAnimatedMenuContext();
+  const { isOpen } = useAnimatedMenuContext()
   return (
     <motion.div
-      className={cn('z-[800] ', className)}
+      className={cn(
+        'bg-popover text-popover-foreground absolute top-0 right-0 z-[800] overflow-hidden rounded-md',
+        className
+      )}
       variants={variants}
       initial="close"
       animate={isOpen ? 'open' : 'close'}
@@ -202,7 +206,7 @@ export function AnimatedMenuList({
         {isOpen && (children as React.ReactNode)}
       </AnimatePresence>
     </motion.div>
-  );
+  )
 }
 
 export function AnimatedMenuItem({
@@ -219,23 +223,23 @@ export function AnimatedMenuItem({
       exit="exit"
       {...props}
     />
-  );
+  )
 }
 
 export function CloseAnimatedMenu({
   className,
   ...props
 }: React.HTMLAttributes<HTMLButtonElement>) {
-  const { setIsOpen } = useAnimatedMenuContext();
-  const closeMenu = () => setIsOpen(false);
+  const { setIsOpen } = useAnimatedMenuContext()
+  const closeMenu = () => setIsOpen(false)
   return (
     <button
       className={cn(
-        'appearance-none bg-none outline-none border-none',
-        className,
+        'appearance-none border-none bg-none outline-none',
+        className
       )}
       onClick={closeMenu}
       {...props}
     />
-  );
+  )
 }

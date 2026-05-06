@@ -1,101 +1,71 @@
-import Image from 'next/image'
-import React from 'react'
-import {
-  CircleCard,
-  CircleCards,
-  CircleCardsWrapper,
-  CircleItem,
-} from '../circle-cards'
+import { FEATURES } from '@/data'
+import { Logo } from '../logo'
+import { TextStaggerInview } from '../systaliko-ui/text-stagger-inview'
+import { Button } from '../ui/button'
+import { cn } from '@/lib/utils'
+import { CardsStackContainer, CardSticky } from '../systaliko-ui/cards-stack'
 
-const FEATURES_CARDS = [
-  // {
-  //   title: 'Real time Monitoring',
-  //   description:
-  //     'Live energy metrics, alerts, and historical trends to spot inefficiencies fast.',
-  //   imageUrl: '/feature-time-image.png',
-  //   outputRange: [30, -10],
-  //   inputRange: [0, 0.4],
-  // },
-  {
-    title: 'Device Integration',
-    description:
-      'Connect your devices to the platform and start monitoring their performance.',
-    imageUrl: '/feature-integrate-image.png',
-    outputRange: [30, -4],
-    inputRange: [0, 0.3],
-  },
-  {
-    title: 'Actionable Analytics',
-    description:
-      'Gain insights into your energy consumption and identify areas for improvement.',
-    imageUrl: '/feature-analyse-image.png',
-
-    outputRange: [32, -3],
-    inputRange: [0.2, 0.5],
-  },
-  {
-    title: 'Entriprise Grade',
-    description:
-      'Role-based access, encrypted data flows, and audit-ready controls designed for regulated environments.',
-    imageUrl: '/feature-entreprise-image.png',
-    outputRange: [34, -2],
-    inputRange: [0.4, 0.7],
-  },
-  {
-    title: 'Scalable Architecture',
-    description:
-      'Deploy from a single site to large multi-region infrastructures without performance or reliability trade-offs.',
-    imageUrl: '/feature-scale-image.png',
-    outputRange: [36, -1],
-    inputRange: [0.6, 0.9],
-  },
-]
-
-function FeatureCard({ ...props }: React.ComponentProps<'div'>) {
+function FeaturesText() {
   return (
-    <div
-      className="bg-card/80 text-card-foreground w-2xs space-y-8 rounded border p-8 shadow backdrop-blur md:w-xs"
-      {...props}
-    />
+    <>
+      <TextStaggerInview
+        animation="bottom"
+        className="text-3xl font-semibold text-balance *:overflow-hidden"
+      >
+        Real time monitoring, scalable integrations, and actionable insights
+      </TextStaggerInview>
+      <p className="text-muted-foreground text-balance">
+        utilities and businesses, with predictive alerts, and actionable
+        insights for utilities and businesses, with predictive alerts, and
+        actionable insights for utilities and businesses.
+      </p>
+      <Button>Book a demo</Button>
+    </>
   )
 }
 
+function FeatureCard({
+  label,
+  desc,
+  iconStyle,
+}: {
+  label: string
+  desc: string
+  iconStyle: string
+}) {
+  return (
+    <div className="bg-card/80 text-card-foreground space-y-8 rounded-3xl border p-8 shadow-xs backdrop-blur-xl">
+      <Logo
+        className={cn(
+          iconStyle,
+          'text-primary [&_g_path:nth-child(3)]:opcaity-100 w-12 stroke-1 [&_g_path]:opacity-0 [&_g_path:nth-child(1)]:opacity-100 [&_g_path:nth-child(10)]:opacity-20'
+        )}
+      />
+      <div className="space-y-2">
+        <h3 className="text-xl font-semibold">{label}</h3>
+        <p className="text-muted-foreground text-balance">{desc}</p>
+      </div>
+    </div>
+  )
+}
 export function Features() {
   return (
-    <section>
-      <CircleCards spacerClassName="h-[800px]">
-        <CircleCardsWrapper yOutput={[0, 800]}>
-          {FEATURES_CARDS.map((card) => (
-            <CircleItem
-              key={card.title}
-              outputRange={card.outputRange}
-              inputRange={card.inputRange}
-              className="top-3/5"
-            >
-              <CircleCard>
-                <FeatureCard>
-                  <div className="mx-auto w-3/5">
-                    <Image
-                      width={215}
-                      height={215}
-                      src={card.imageUrl}
-                      alt={card.title}
-                      className="aspect-square h-auto w-full object-contain"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-medium">{card.title}</h3>
-
-                    <p className="text-muted-foreground text-sm text-balance">
-                      {card.description}
-                    </p>
-                  </div>
-                </FeatureCard>
-              </CircleCard>
-            </CircleItem>
+    <section
+      id="features"
+      className="bg-secondary text-secondary-foreground py-16"
+    >
+      <div className="flex items-start gap-12 px-8">
+        <div className="sticky top-0 left-0 min-h-screen w-fit place-content-center space-y-4">
+          <FeaturesText />
+        </div>
+        <CardsStackContainer className="place-content-center place-items-center space-y-8 py-12">
+          {FEATURES.map((feature, index) => (
+            <CardSticky key={feature.label} index={index}>
+              <FeatureCard {...feature} />
+            </CardSticky>
           ))}
-        </CircleCardsWrapper>
-      </CircleCards>
+        </CardsStackContainer>
+      </div>
     </section>
   )
 }

@@ -1,42 +1,55 @@
 'use client'
 import { MotionConfig, motion, stagger } from 'motion/react'
-import { MapPin, WorldMap, WorldMapGLow, WorldMapSvg } from '../world-map'
 import { ANIMATION_VARIANTS } from '../systaliko-ui/animation-variants'
 import { Button } from '../ui/button'
 import { ArrowRightIcon } from 'lucide-react'
+import { Suspense, lazy } from 'react'
+import { hero_text, SHADER_COLORS } from '@/data'
+import { TextStaggerInterval } from '../systaliko-ui/text-stagger-interval'
 
-const animationVariants = ANIMATION_VARIANTS['bottom']
+const HurricaneShader = lazy(() =>
+  import('../shader').then((mod) => ({ default: mod.HurricaneShader }))
+)
+
+const animationVariants = ANIMATION_VARIANTS['blur']
 
 function HeroText() {
   return (
     <motion.div
       transition={{ delayChildren: stagger(0.3), delay: 0.1 }}
-      className="relative z-5 flex flex-col items-center justify-center space-y-4 text-center"
       initial="hidden"
       animate="visible"
+      className="space-y-4"
     >
       <MotionConfig transition={{ duration: 0.5, ease: 'easeInOut' }}>
         <motion.h1
           variants={animationVariants}
-          className="max-w-[25ch] text-5xl font-semibold tracking-tighter text-balance md:text-6xl xl:text-7xl"
+          className="max-w-[18ch] text-4xl font-semibold tracking-tight text-balance md:text-5xl xl:text-6xl"
         >
-          Manage energy smarter Save cost reduce carbon
+          Manage energy smarter{' '}
+          <TextStaggerInterval
+            words={['save', 'optimize', 'reduce']}
+            interval={2500}
+            staggerValue={0.03}
+            animation="blur"
+            className="text-primary inline-block min-w-[186px] font-serif font-normal tracking-normal italic"
+          />{' '}
+          cost reduce carbon
         </motion.h1>
 
         <motion.p
           variants={animationVariants}
-          className="text-accent-foreground max-w-[65ch] text-lg text-balance"
+          className="text-muted-foreground max-w-[45ch] text-balance"
         >
-          Real-time monitoring, scalable integrations, and actionable insights
-          for utilities and businesses.
+          {hero_text.paragrph}
         </motion.p>
 
         <motion.div
           variants={animationVariants}
           className="flex flex-wrap items-center gap-3"
         >
-          <Button size="lg">Get Started</Button>
-          <Button size={'lg'} variant="outline">
+          <Button>Get Started</Button>
+          <Button variant="secondary">
             View Documentation <ArrowRightIcon />
           </Button>
         </motion.div>
@@ -47,18 +60,18 @@ function HeroText() {
 
 export function Hero() {
   return (
-    <section className="grid h-screen grid-cols-1 grid-rows-1 place-content-center *:col-start-1 *:row-start-1">
-      <WorldMap>
-        <WorldMapGLow className="bg-background/50 dark:bg-background/0" />
-        <WorldMapSvg>
-          <MapPin x={280} y={100} delay={0} />
-          {/* Europe */}
-          <MapPin x={640} y={80} delay={1} />
-          {/* Asia */}
-          <MapPin x={900} y={120} delay={2} />
-        </WorldMapSvg>
-      </WorldMap>
+    <section
+      id="hero"
+      className="grid min-h-screen grid-rows-[max-content_max-content] items-center px-8 py-12 lg:grid-cols-2"
+    >
       <HeroText />
+      <Suspense fallback={<div className="bg-background size-full" />}>
+        <HurricaneShader
+          className="h-[500px]"
+          background="#fdfdfd"
+          colors={SHADER_COLORS}
+        />
+      </Suspense>
     </section>
   )
 }

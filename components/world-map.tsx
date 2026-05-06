@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import svgMapPath from '@/data/svg-map-path'
+import svgMapPath from '@/components/svg/svg-map-path'
 
 export function WorldMapGLow({
   className,
