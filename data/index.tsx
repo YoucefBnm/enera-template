@@ -1,3 +1,6 @@
+import GithubIcon from '@/components/svg/github-icon'
+import LinkedinIcon from '@/components/svg/linkedin-icon'
+import XIcon from '@/components/svg/x-icon'
 import {
   BatteryChargingIcon,
   EvChargerIcon,
@@ -17,8 +20,16 @@ export const SHADER_COLORS: [string, string, string] = [
   '#805cd6',
   '#d38955',
 ]
+export const gradient_style = {
+  background: 'var(--primary)',
+  backgroundImage:
+    'radial-gradient(85% 70% at 90% 70%, #A68DE2 0%, #9A7CDE 22.92%, #8D6CDA 42.71%, var(--primary) 88.54%)',
+} as const
+export const link_style =
+  'text-muted-foreground/70 p-2 text-sm font-medium duration-150 ease-out transition-colors hover:text-muted-foreground hover:bg-muted rounded'
+
 const iconStyle =
-  '*:opacity-40 size-10 stroke-1 *:transition-[transform_opacity] *:duration-200 *:ease-out'
+  '*:opacity-70 size-8 text-primary stroke-[1.5] *:transition-[transform_opacity] *:duration-200 *:ease-out'
 
 export const hero_text = {
   heading: 'Manage energy smarter Save cost reduce carbon',
@@ -94,7 +105,26 @@ export const site_links = [
     href: '#',
   },
 ]
-
+export const company_profiles = [
+  {
+    id: 'site-profile-x',
+    label: 'x',
+    href: '#',
+    icon: XIcon,
+  },
+  {
+    id: 'site-profile-github',
+    label: 'github',
+    href: '#',
+    icon: GithubIcon,
+  },
+  {
+    id: 'site-profile-linkedin',
+    label: 'linkedin',
+    href: '#',
+    icon: LinkedinIcon,
+  },
+]
 export const process_nodes = [
   {
     id: 'node_source',

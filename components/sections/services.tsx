@@ -5,8 +5,10 @@ import {
   TextScrollReadWrap,
 } from '../systaliko-ui/text-scroll-read'
 import { Button } from '../ui/button'
-import { SERVICES } from '@/data'
+import { gradient_style, SERVICES } from '@/data'
 
+const card_style =
+  'group bg-secondary text-secondary-foreground space-y-6 rounded border p-8'
 export function Services() {
   return (
     <section className="flex justify-center" id="sevices">
@@ -34,10 +36,7 @@ export function Services() {
         </div>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(min(18rem,100%),1fr))] gap-4 p-8">
           {SERVICES.map(({ title, Icon, description }) => (
-            <div
-              className="group bg-card text-card-foreground space-y-6 rounded border p-8"
-              key={title}
-            >
+            <div className={card_style} key={title}>
               <Icon />
 
               <div className="space-y-2">
@@ -48,6 +47,22 @@ export function Services() {
               </div>
             </div>
           ))}
+          <div className={card_style} style={gradient_style}>
+            <h2 className="text-primary-foreground text-xl font-medium">
+              Optimize your energy
+            </h2>
+            <p className="text-muted text-sm text-balance">
+              We can help you optimize your energy consumption and reduce your
+              costs.
+            </p>
+            <Button
+              variant="link"
+              className="text-primary-foreground"
+              size="sm"
+            >
+              Learn more <ChevronsRightIcon />
+            </Button>
+          </div>
         </div>
       </div>
     </section>

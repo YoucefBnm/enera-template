@@ -22,7 +22,10 @@ function LocationsText() {
 
 export function Locations() {
   return (
-    <section className="grid grid-cols-1 grid-rows-1 items-center *:row-start-1 md:grid-cols-4">
+    <section
+      id="locations"
+      className="grid grid-cols-1 grid-rows-1 items-center py-20 *:row-start-1 md:grid-cols-4"
+    >
       <LocationsText />
       <WorldMap className="col-start-1 md:col-span-3 md:col-start-2">
         <WorldMapGLow className="bg-accent/20" />

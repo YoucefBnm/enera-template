@@ -1,7 +1,7 @@
 'use client'
 
 import { Logo } from '@/components/logo'
-import { site_links } from '@/data'
+import { link_style, site_links } from '@/data'
 import Link from 'next/link'
 import { Button } from '../ui/button'
 import { useIsScrolled } from '@/lib/use-is-scrolled'
@@ -15,8 +15,6 @@ import {
   AnimatedMenuList,
 } from '../systaliko-ui/animated-menu'
 
-const link_style =
-  'text-muted-foreground/70 p-2 text-sm font-medium duration-150 ease-out transition-colors hover:text-muted-foreground hover:bg-muted rounded'
 const menuListVariants = {
   open: {
     width: 220,
@@ -59,7 +57,7 @@ function NavMobile() {
       </AnimatedMenuButton>
       <AnimatedMenuList
         variants={menuListVariants}
-        className="bg-popover/95 text-popover-foreground border-muted/50 place-content-center border-2 shadow-lg backdrop-blur"
+        className="bg-popover/95 text-popover-foreground border-muted/50 place-content-center border-2 shadow-xs backdrop-blur"
       >
         <div className="flex flex-col gap-4 p-8">
           {site_links.map((item, i) => (
@@ -86,11 +84,11 @@ export function Header() {
       />
       <header
         className={clsx(
-          'sticky top-2 z-999 mx-auto flex items-center justify-between gap-4 rounded-3xl px-4 py-2 backdrop-blur',
+          'sticky top-2 z-999 mx-auto flex items-center justify-between gap-4 rounded-3xl p-2 backdrop-blur',
           'transition-[background_border-color_shadow_width] duration-300 ease-in-out',
           isScrolled
-            ? 'bg-sidebar/70 w-4/5 border shadow'
-            : 'bg-background right-0 left-0 w-5/5'
+            ? 'bg-sidebar/70 w-4/5 border shadow-xs'
+            : 'bg-background right-0 left-0 w-11/12'
         )}
       >
         <HeaderLogo />

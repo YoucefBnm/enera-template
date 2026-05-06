@@ -1,85 +1,129 @@
 'use client'
 import Link from 'next/link'
-import { BgMask } from '../bg-mask'
-import { Button } from '../ui/button'
 import { Logo } from '../logo'
-import { ChevronRightIcon } from 'lucide-react'
-import { motion, MotionConfig, stagger, Variants } from 'motion/react'
+import {
+  company_profiles,
+  gradient_style,
+  link_style,
+  site_links,
+} from '@/data'
+import { Cta } from './cta'
 
-const clip_path_variants = {
-  hidden: {
-    clipPath: 'polygon(0 0, 0 0, 0 100%, 0% 100%)',
-  },
-  visible: {
-    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-  },
-} as Variants
-
-export function Footer() {
+function FooterLogo() {
   return (
-    <footer className="border-t">
-      <div className="bg-accent relative z-2 flex min-h-fit flex-wrap items-end gap-4 px-8 py-20">
-        <p className="text-muted-foreground flex-1 text-balance">
-          Delivering straightforward energy technology and services that help
-          organizations measure, manage, and optimize energy usage. Built for
-          operations teams, facilities managers, and grid operators who need
-          reliable data and fast answers.
-        </p>
-
-        <Button variant="outline">
-          Get Started <ChevronRightIcon />
-        </Button>
+    <div className="space-y-3">
+      <div className="flex items-center gap-1">
+        <Logo className="w-5" />
+        <span className="text-2xl font-semibold">Enera</span>
       </div>
 
+      <h2 className="font-semibold">Manage energy smarter</h2>
+      <p className="text-muted text-sm text-balance">
+        Real time monitoring, scalable integrations, and actionable insights for
+        utilities and businesses.
+      </p>
+    </div>
+  )
+}
+
+function FooterSocials() {
+  return (
+    <ul className="list-style-none flex gap-1">
+      {company_profiles.map(({ id, label, href, icon }) => {
+        const Icon = icon
+        return (
+          <li key={id}>
+            <a
+              href={href}
+              className={`${link_style} text-primary-foreground block`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+            >
+              <Icon className="size-4 stroke-[1.5]" />
+            </a>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function NavGroup({ title, links }: { title: string; links: Array<any> }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold">{title}</h3>
+      <ul className="list-style-none space-y-2">
+        {links.map(({ id, label, href }) => (
+          <li key={id}>
+            <Link
+              href={href}
+              className={`${link_style} text-primary-foreground`}
+            >
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+function FooterNav() {
+  return (
+    <nav className="flex flex-1 items-start justify-evenly gap-8">
+      <NavGroup title="Sitemap" links={site_links} />
+      <NavGroup
+        title="Company"
+        links={[
+          { id: 'company-link-about', label: 'About', href: '#' },
+          { id: 'company-link-careers', label: 'Careers', href: '#' },
+          { id: 'company-link-blog', label: 'Blog', href: '#' },
+        ]}
+      />
+      <NavGroup
+        title="Products"
+        links={[
+          {
+            id: 'company-product-emp',
+            label: 'EMP',
+            href: '#',
+          },
+          {
+            id: 'company-product-metering',
+            label: 'Metering',
+            href: '#',
+          },
+          {
+            id: 'company-product-storage',
+            label: 'Storage',
+            href: '#',
+          },
+          {
+            id: 'company-product-operations',
+            label: 'Operations',
+            href: '#',
+          },
+        ]}
+      />
+    </nav>
+  )
+}
+export function Footer() {
+  return (
+    <footer className="text-primary-foreground">
+      <Cta />
+
       <div
-        className="text-primary-foreground sticky bottom-0 left-0 flex h-fit w-full flex-wrap items-end justify-evenly gap-8 px-8 py-12"
-        style={{
-          background: 'var(--primary)',
-          backgroundImage:
-            'radial-gradient(85% 70% at 90% 70%, #A68DE2 0%, #9A7CDE 22.92%, #8D6CDA 42.71%, var(--primary) 88.54%) ',
-        }}
+        className="sticky bottom-0 left-0 h-fit w-full px-8 py-16"
+        style={gradient_style}
       >
-        <div className="space-y-4">
-          <MotionConfig
-            transition={{ delay: 0.4, duration: 1, ease: 'easeOut' }}
-          >
-            <motion.div
-              className="overflow-hidden"
-              variants={clip_path_variants}
-              initial="hidden"
-              whileInView="visible"
-              // viewport={{ amount: 'all' }}
-            >
-              <Logo className="w-20" />
-            </motion.div>
-
-            <motion.ul
-              className="flex items-center gap-1 overflow-hidden"
-              variants={clip_path_variants}
-              initial="hidden"
-              whileInView="visible"
-              // viewport={{ amount: 'all' }}
-            >
-              <li>Facebook</li>
-              <li>X</li>
-              <li>Instagram</li>
-              <li>Linkedin</li>
-            </motion.ul>
-          </MotionConfig>
+        <div className="flex flex-wrap justify-between gap-8">
+          <div className="flex flex-1 flex-col items-start justify-between gap-6">
+            <FooterLogo />
+            <FooterSocials />
+          </div>
+          <FooterNav />
         </div>
-
-        <motion.ul
-          className="flex items-center gap-1 overflow-hidden"
-          variants={clip_path_variants}
-          initial="hidden"
-          whileInView="visible"
-          // viewport={{ amount: 'all' }}
-        >
-          <li>Facebook</li>
-          <li>X</li>
-          <li>Instagram</li>
-          <li>Linkedin</li>
-        </motion.ul>
       </div>
     </footer>
   )

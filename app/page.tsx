@@ -17,8 +17,8 @@ export default function Page() {
       <Hero />
       <Services />
       <Locations />
+      <Features />
       <Process />
-      <Cta />
       <Footer />
     </ReactLenis>
   )
